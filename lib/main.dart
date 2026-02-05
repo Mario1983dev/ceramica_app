@@ -23,6 +23,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: primaryBlue),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: primaryBlue,
+          foregroundColor: Colors.white,
+        ),
       ),
       home: const HomePage(),
     );
@@ -36,14 +40,12 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  static const String logoPath = 'assets/images/logo-solusoft.jpg';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('SoluSoft'),
-        backgroundColor: primaryBlue,
-        foregroundColor: Colors.white,
-      ),
+      appBar: AppBar(title: const Text('SoluSoft')),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, c) {
@@ -54,64 +56,83 @@ class HomePage extends StatelessWidget {
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 980),
-                  child: Wrap(
-                    spacing: 14,
-                    runSpacing: 14,
+                  child: Column(
                     children: [
-                      HomeCard(
-                        isMobile: isMobile,
-                        title: 'Cerámica',
-                        subtitle: 'Cajas necesarias + merma',
-                        icon: Icons.grid_on_rounded,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const CeramicaPage()),
-                          );
-                        },
+                      const SizedBox(height: 10),
+
+                      Image.asset(
+                        logoPath,
+                        height: 180,
+                        fit: BoxFit.contain,
                       ),
 
-                      HomeCard(
-                        isMobile: isMobile,
-                        title: 'Pintura',
-                        subtitle: 'Galones necesarios',
-                        icon: Icons.format_paint_rounded,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const PinturaPage()),
-                          );
-                        },
-                      ),
+                      const SizedBox(height: 10),
 
-                      HomeCard(
-                        isMobile: isMobile,
-                        title: 'Terciado ranurado',
-                        subtitle: 'Planchas necesarias + merma',
-                        icon: Icons.view_quilt_rounded,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const TerciadoPage()),
-                          );
-                        },
-                      ),
-
-                      HomeCard(
-                        isMobile: isMobile,
-                        title: 'Ladrillos pared',
-                        subtitle: 'Cantidad + mortero + merma',
-                        icon: Icons.view_stream_rounded,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const LadrillosPage()),
-                          );
-                        },
+                      Wrap(
+                        spacing: 14,
+                        runSpacing: 14,
+                        children: [
+                          HomeCard(
+                            isMobile: isMobile,
+                            title: 'Cerámica',
+                            subtitle: 'Cajas necesarias + merma',
+                            icon: Icons.grid_on_rounded,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const CeramicaPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          HomeCard(
+                            isMobile: isMobile,
+                            title: 'Pintura',
+                            subtitle: 'Galones necesarios',
+                            icon: Icons.format_paint_rounded,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const PinturaPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          HomeCard(
+                            isMobile: isMobile,
+                            title: 'Terciado ranurado',
+                            subtitle: 'Planchas necesarias + merma',
+                            icon: Icons.view_quilt_rounded,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const TerciadoPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          HomeCard(
+                            isMobile: isMobile,
+                            title: 'Ladrillos pared',
+                            subtitle: 'Cantidad + mortero + merma',
+                            icon: Icons.view_stream_rounded,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const LadrillosPage(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -167,7 +188,8 @@ class HomeCard extends StatelessWidget {
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
                     children: [
                       Text(title,
                           style: const TextStyle(
@@ -175,7 +197,8 @@ class HomeCard extends StatelessWidget {
                               fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
                       Text(subtitle,
-                          style: TextStyle(color: Colors.grey[600])),
+                          style: TextStyle(
+                              color: Colors.grey[600])),
                     ],
                   ),
                 ),
