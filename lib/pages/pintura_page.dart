@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:ceramica_app/core/input_utils.dart';
+
 class PinturaPage extends StatefulWidget {
   const PinturaPage({super.key});
 
@@ -22,36 +24,28 @@ class _PinturaPageState extends State<PinturaPage> {
   double areaTotal = 0;
   int galones = 0;
 
-  double _num(String s) {
-    final t = s.trim().replaceAll(',', '.');
-    return double.tryParse(t) ?? 0;
-  }
-
   void _snack(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(msg)),
     );
   }
 
-  String? _validaPositivo(String? value, String nombre) {
-    final txt = (value ?? '').trim();
-    if (txt.isEmpty) return 'Ingresa $nombre';
-    final n = _num(txt);
-    if (n <= 0) return '$nombre debe ser mayor a 0';
-    return null;
-  }
-
   void calcular() {
+    FocusScope.of(context).unfocus();
+
     final ok = _formKey.currentState?.validate() ?? false;
     if (!ok) {
       _snack('⚠️ Revisa los campos antes de calcular.');
       return;
     }
 
-    final largo = _num(largoCtrl.text);
-    final alto = _num(altoCtrl.text);
-    final manos = _num(manosCtrl.text);
-    final rendimiento = _num(rendimientoCtrl.text);
+    final largo = InputUtils.toDouble(largoCtrl.text);
+    final alto = InputUtils.toDouble(altoCtrl.text);
+
+    // Ojo: manos y rendimiento pueden llevar decimales, pero normalmente son enteros.
+    // Igual lo soportamos con toDouble por si alguien pone 2.5, etc.
+    final manos = InputUtils.toDouble(manosCtrl.text);
+    final rendimiento = InputUtils.toDouble(rendimientoCtrl.text);
 
     area = largo * alto;
     areaTotal = area * manos;
@@ -59,13 +53,15 @@ class _PinturaPageState extends State<PinturaPage> {
     final areaConMerma = usarMerma ? areaTotal * 1.10 : areaTotal;
     final galonesExactos = areaConMerma / rendimiento;
 
-    // ✅ Siempre entero
-    galones = galonesExactos.ceil();
+    // ✅ Siempre entero hacia arriba
+    galones = galonesExactos.isFinite ? galonesExactos.ceil() : 0;
 
     setState(() {});
   }
 
   void limpiar() {
+    _formKey.currentState?.reset();
+
     largoCtrl.clear();
     altoCtrl.clear();
     manosCtrl.text = "2";
@@ -116,9 +112,14 @@ class _PinturaPageState extends State<PinturaPage> {
                         controller: largoCtrl,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                          DecimalTextInputFormatter(decimalRange: 2),
                         ],
-                        validator: (v) => _validaPositivo(v, "Largo"),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (v) => InputUtils.requiredPositive(
+                          v,
+                          fieldName: "Largo",
+                          maxValue: 2000,
+                        ),
                         decoration: const InputDecoration(
                           labelText: "Largo pared (m)",
                         ),
@@ -129,9 +130,14 @@ class _PinturaPageState extends State<PinturaPage> {
                         controller: altoCtrl,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                          DecimalTextInputFormatter(decimalRange: 2),
                         ],
-                        validator: (v) => _validaPositivo(v, "Alto"),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (v) => InputUtils.requiredPositive(
+                          v,
+                          fieldName: "Alto",
+                          maxValue: 2000,
+                        ),
                         decoration: const InputDecoration(
                           labelText: "Alto pared (m)",
                         ),
@@ -142,9 +148,14 @@ class _PinturaPageState extends State<PinturaPage> {
                         controller: manosCtrl,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                          DecimalTextInputFormatter(decimalRange: 2),
                         ],
-                        validator: (v) => _validaPositivo(v, "N° de manos"),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (v) => InputUtils.requiredPositive(
+                          v,
+                          fieldName: "N° de manos",
+                          maxValue: 100,
+                        ),
                         decoration: const InputDecoration(
                           labelText: "N° de manos",
                         ),
@@ -155,9 +166,14 @@ class _PinturaPageState extends State<PinturaPage> {
                         controller: rendimientoCtrl,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                          DecimalTextInputFormatter(decimalRange: 2),
                         ],
-                        validator: (v) => _validaPositivo(v, "Rendimiento"),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (v) => InputUtils.requiredPositive(
+                          v,
+                          fieldName: "Rendimiento",
+                          maxValue: 1000,
+                        ),
                         decoration: const InputDecoration(
                           labelText: "Rendimiento m² por galón",
                         ),
@@ -185,9 +201,9 @@ class _PinturaPageState extends State<PinturaPage> {
 
                       const SizedBox(height: 20),
 
-                      _resultado("Área pared", "${area.toStringAsFixed(2)} m²"),
-                      _resultado("Área total", "${areaTotal.toStringAsFixed(2)} m²"),
-                      _resultado("Galones necesarios", galones.toString()),
+                      _resultado("Área pared", area == 0 ? "-" : "${area.toStringAsFixed(2)} m²"),
+                      _resultado("Área total", areaTotal == 0 ? "-" : "${areaTotal.toStringAsFixed(2)} m²"),
+                      _resultado("Galones necesarios", galones == 0 ? "-" : galones.toString()),
                     ],
                   ),
                 ),

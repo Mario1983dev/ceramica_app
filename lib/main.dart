@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 
+import 'core/app_constants.dart';
+import 'core/app_strings.dart';
+
 import 'pages/ceramica_page.dart';
 import 'pages/pintura_page.dart';
 import 'pages/terciado_page.dart';
 import 'pages/ladrillos_page.dart';
+import 'pages/radier_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
-
-const Color primaryBlue = Color(0xFF0D47A1);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -22,10 +24,11 @@ class MyApp extends StatelessWidget {
       title: 'SoluSoft',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: primaryBlue),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryBlue),
         appBarTheme: const AppBarTheme(
-          backgroundColor: primaryBlue,
+          backgroundColor: AppColors.primaryBlue,
           foregroundColor: Colors.white,
+          centerTitle: true,
         ),
       ),
       home: const HomePage(),
@@ -52,7 +55,7 @@ class HomePage extends StatelessWidget {
             final isMobile = c.maxWidth < 750;
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppConstants.padding),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 980),
@@ -64,9 +67,21 @@ class HomePage extends StatelessWidget {
                         logoPath,
                         height: 180,
                         fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => Container(
+                          height: 180,
+                          alignment: Alignment.center,
+                          child: const Text(
+                            'SoluSoft',
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryBlue,
+                            ),
+                          ),
+                        ),
                       ),
 
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
 
                       Wrap(
                         spacing: 14,
@@ -74,60 +89,74 @@ class HomePage extends StatelessWidget {
                         children: [
                           HomeCard(
                             isMobile: isMobile,
-                            title: 'Cerámica',
-                            subtitle: 'Cajas necesarias + merma',
+                            title: AppStrings.ceramicaTitle,
+                            subtitle: AppStrings.ceramicaSubtitle,
                             icon: Icons.grid_on_rounded,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      const CeramicaPage(),
+                                  builder: (_) => const CeramicaPage(),
                                 ),
                               );
                             },
                           ),
+
                           HomeCard(
                             isMobile: isMobile,
-                            title: 'Pintura',
-                            subtitle: 'Galones necesarios',
+                            title: AppStrings.pinturaTitle,
+                            subtitle: AppStrings.pinturaSubtitle,
                             icon: Icons.format_paint_rounded,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      const PinturaPage(),
+                                  builder: (_) => const PinturaPage(),
                                 ),
                               );
                             },
                           ),
+
                           HomeCard(
                             isMobile: isMobile,
-                            title: 'Terciado ranurado',
-                            subtitle: 'Planchas necesarias + merma',
+                            title: AppStrings.terciadoTitle,
+                            subtitle: AppStrings.terciadoSubtitle,
                             icon: Icons.view_quilt_rounded,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      const TerciadoPage(),
+                                  builder: (_) => const TerciadoPage(),
                                 ),
                               );
                             },
                           ),
+
                           HomeCard(
                             isMobile: isMobile,
-                            title: 'Ladrillos pared',
-                            subtitle: 'Cantidad + mortero + merma',
+                            title: AppStrings.ladrillosTitle,
+                            subtitle: AppStrings.ladrillosSubtitle,
                             icon: Icons.view_stream_rounded,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      const LadrillosPage(),
+                                  builder: (_) => const LadrillosPage(),
+                                ),
+                              );
+                            },
+                          ),
+
+                          HomeCard(
+                            isMobile: isMobile,
+                            title: AppStrings.radierTitle,
+                            subtitle: AppStrings.radierSubtitle,
+                            icon: Icons.foundation_rounded,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const RadierPage(),
                                 ),
                               );
                             },
@@ -147,7 +176,7 @@ class HomePage extends StatelessWidget {
 }
 
 /* ===========================================================
-   TARJETA DEL MENÚ
+   TARJETA MENÚ
 =========================================================== */
 
 class HomeCard extends StatelessWidget {
@@ -173,32 +202,36 @@ class HomeCard extends StatelessWidget {
     return SizedBox(
       width: width,
       child: Card(
+        elevation: 1,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppConstants.padding),
             child: Row(
               children: [
                 CircleAvatar(
                   radius: 26,
-                  backgroundColor: primaryBlue.withOpacity(0.12),
-                  child: Icon(icon, color: primaryBlue),
+                  backgroundColor: AppColors.primaryBlue.withOpacity(0.12),
+                  child: Icon(icon, color: AppColors.primaryBlue),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title,
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold)),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 4),
-                      Text(subtitle,
-                          style: TextStyle(
-                              color: Colors.grey[600])),
+                      Text(
+                        subtitle,
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
                     ],
                   ),
                 ),

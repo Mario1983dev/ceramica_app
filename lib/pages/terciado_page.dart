@@ -1,6 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../main.dart'; // primaryBlue
+import 'package:flutter/services.dart';
+
+import '../core/app_constants.dart';
+import 'package:ceramica_app/core/input_utils.dart';
 
 class TerciadoPage extends StatefulWidget {
   const TerciadoPage({super.key});
@@ -28,17 +31,6 @@ class _TerciadoPageState extends State<TerciadoPage> {
   int _planchasSinMerma = 0;
   int _planchasConMerma = 0;
 
-  double _parseNum(String s) {
-    final t = s.trim().replaceAll(',', '.');
-    return double.tryParse(t) ?? 0;
-  }
-
-  String? _validaMayorCero(String? v, String nombre) {
-    final n = _parseNum(v ?? '');
-    if (n <= 0) return '⚠️ $nombre debe ser mayor a 0';
-    return null;
-  }
-
   @override
   void dispose() {
     _largoCtrl.dispose();
@@ -49,23 +41,19 @@ class _TerciadoPageState extends State<TerciadoPage> {
   }
 
   void _calcular() {
-    if (!_formKey.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
 
-    final largo = _parseNum(_largoCtrl.text);
-    final ancho = _parseNum(_anchoCtrl.text);
+    final ok = _formKey.currentState?.validate() ?? false;
+    if (!ok) return;
 
-    final largoP = _parseNum(_largoPlanchaCtrl.text);
-    final anchoP = _parseNum(_anchoPlanchaCtrl.text);
+    final largo = InputUtils.toDouble(_largoCtrl.text);
+    final ancho = InputUtils.toDouble(_anchoCtrl.text);
+
+    final largoP = InputUtils.toDouble(_largoPlanchaCtrl.text);
+    final anchoP = InputUtils.toDouble(_anchoPlanchaCtrl.text);
 
     final area = largo * ancho;
     final areaPlancha = largoP * anchoP;
-
-    if (areaPlancha <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('⚠️ Revisa medidas de plancha')),
-      );
-      return;
-    }
 
     final base = area / areaPlancha;
     final sinMerma = base.isFinite ? base.ceil() : 0;
@@ -82,6 +70,8 @@ class _TerciadoPageState extends State<TerciadoPage> {
   }
 
   void _limpiar() {
+    _formKey.currentState?.reset();
+
     _largoCtrl.clear();
     _anchoCtrl.clear();
     _largoPlanchaCtrl.text = '2.44';
@@ -101,7 +91,7 @@ class _TerciadoPageState extends State<TerciadoPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Terciado ranurado'),
-        backgroundColor: primaryBlue,
+        backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
       ),
       body: SafeArea(
@@ -133,11 +123,19 @@ class _TerciadoPageState extends State<TerciadoPage> {
                               child: TextFormField(
                                 controller: _largoCtrl,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: [
+                                  DecimalTextInputFormatter(decimalRange: 2),
+                                ],
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
                                 decoration: const InputDecoration(
                                   labelText: 'Largo (m)',
                                   border: OutlineInputBorder(),
                                 ),
-                                validator: (v) => _validaMayorCero(v, 'Largo'),
+                                validator: (v) => InputUtils.requiredPositive(
+                                  v,
+                                  fieldName: 'Largo',
+                                  maxValue: 2000,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -145,11 +143,19 @@ class _TerciadoPageState extends State<TerciadoPage> {
                               child: TextFormField(
                                 controller: _anchoCtrl,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: [
+                                  DecimalTextInputFormatter(decimalRange: 2),
+                                ],
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
                                 decoration: const InputDecoration(
                                   labelText: 'Ancho (m)',
                                   border: OutlineInputBorder(),
                                 ),
-                                validator: (v) => _validaMayorCero(v, 'Ancho'),
+                                validator: (v) => InputUtils.requiredPositive(
+                                  v,
+                                  fieldName: 'Ancho',
+                                  maxValue: 2000,
+                                ),
                               ),
                             ),
                           ],
@@ -166,11 +172,19 @@ class _TerciadoPageState extends State<TerciadoPage> {
                               child: TextFormField(
                                 controller: _largoPlanchaCtrl,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: [
+                                  DecimalTextInputFormatter(decimalRange: 2),
+                                ],
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
                                 decoration: const InputDecoration(
                                   labelText: 'Largo plancha (m)',
                                   border: OutlineInputBorder(),
                                 ),
-                                validator: (v) => _validaMayorCero(v, 'Largo plancha'),
+                                validator: (v) => InputUtils.requiredPositive(
+                                  v,
+                                  fieldName: 'Largo plancha',
+                                  maxValue: 10,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -178,11 +192,19 @@ class _TerciadoPageState extends State<TerciadoPage> {
                               child: TextFormField(
                                 controller: _anchoPlanchaCtrl,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: [
+                                  DecimalTextInputFormatter(decimalRange: 2),
+                                ],
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
                                 decoration: const InputDecoration(
                                   labelText: 'Ancho plancha (m)',
                                   border: OutlineInputBorder(),
                                 ),
-                                validator: (v) => _validaMayorCero(v, 'Ancho plancha'),
+                                validator: (v) => InputUtils.requiredPositive(
+                                  v,
+                                  fieldName: 'Ancho plancha',
+                                  maxValue: 10,
+                                ),
                               ),
                             ),
                           ],
@@ -236,7 +258,9 @@ class _TerciadoPageState extends State<TerciadoPage> {
                           value: _planchasSinMerma == 0 ? '-' : '$_planchasSinMerma',
                         ),
                         _ResultadoTile(
-                          label: _usarMerma10 ? 'Recomendable comprar (con merma 10%)' : 'Planchas con merma',
+                          label: _usarMerma10
+                              ? 'Recomendable comprar (con merma 10%)'
+                              : 'Planchas con merma',
                           value: _planchasConMerma == 0 ? '-' : '$_planchasConMerma',
                           bold: true,
                         ),

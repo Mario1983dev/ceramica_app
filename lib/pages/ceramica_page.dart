@@ -1,6 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../main.dart'; // para usar primaryBlue
+import 'package:flutter/services.dart';
+
+import '../core/app_constants.dart';
+import 'package:ceramica_app/core/input_utils.dart';
 
 class CeramicaPage extends StatefulWidget {
   const CeramicaPage({super.key});
@@ -27,12 +30,6 @@ class _CeramicaPageState extends State<CeramicaPage> {
   int _cajasSinMerma = 0;
   int _cajasConMerma = 0;
 
-  // Helpers
-  double _parseNum(String s) {
-    final t = s.trim().replaceAll(',', '.');
-    return double.tryParse(t) ?? 0;
-  }
-
   @override
   void dispose() {
     _largoCtrl.dispose();
@@ -42,11 +39,11 @@ class _CeramicaPageState extends State<CeramicaPage> {
   }
 
   void _calcular() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    final largo = _parseNum(_largoCtrl.text);
-    final ancho = _parseNum(_anchoCtrl.text);
-    final m2Caja = _parseNum(_m2CajaCtrl.text);
+    final largo = InputUtils.toDouble(_largoCtrl.text);
+    final ancho = InputUtils.toDouble(_anchoCtrl.text);
+    final m2Caja = InputUtils.toDouble(_m2CajaCtrl.text);
 
     final area = largo * ancho;
     final cajasBase = (area / m2Caja);
@@ -64,6 +61,7 @@ class _CeramicaPageState extends State<CeramicaPage> {
   }
 
   void _limpiar() {
+    _formKey.currentState?.reset();
     _largoCtrl.clear();
     _anchoCtrl.clear();
     _m2CajaCtrl.clear();
@@ -75,18 +73,12 @@ class _CeramicaPageState extends State<CeramicaPage> {
     });
   }
 
-  String? _validaMayorCero(String? v, String nombre) {
-    final n = _parseNum(v ?? '');
-    if (n <= 0) return '⚠️ $nombre debe ser mayor a 0';
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cerámica'),
-        backgroundColor: primaryBlue,
+        backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
       ),
       body: SafeArea(
@@ -119,11 +111,19 @@ class _CeramicaPageState extends State<CeramicaPage> {
                               child: TextFormField(
                                 controller: _largoCtrl,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: [
+                                  DecimalTextInputFormatter(decimalRange: 2),
+                                ],
                                 decoration: const InputDecoration(
                                   labelText: 'Largo (m)',
                                   border: OutlineInputBorder(),
                                 ),
-                                validator: (v) => _validaMayorCero(v, 'Largo'),
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
+                                validator: (v) => InputUtils.requiredPositive(
+                                  v,
+                                  fieldName: 'Largo',
+                                  maxValue: 2000,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -131,11 +131,19 @@ class _CeramicaPageState extends State<CeramicaPage> {
                               child: TextFormField(
                                 controller: _anchoCtrl,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: [
+                                  DecimalTextInputFormatter(decimalRange: 2),
+                                ],
                                 decoration: const InputDecoration(
                                   labelText: 'Ancho (m)',
                                   border: OutlineInputBorder(),
                                 ),
-                                validator: (v) => _validaMayorCero(v, 'Ancho'),
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
+                                validator: (v) => InputUtils.requiredPositive(
+                                  v,
+                                  fieldName: 'Ancho',
+                                  maxValue: 2000,
+                                ),
                               ),
                             ),
                           ],
@@ -147,12 +155,20 @@ class _CeramicaPageState extends State<CeramicaPage> {
                         TextFormField(
                           controller: _m2CajaCtrl,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [
+                            DecimalTextInputFormatter(decimalRange: 2),
+                          ],
                           decoration: const InputDecoration(
                             labelText: 'm² por caja',
                             helperText: 'Ej: 1.44 (depende del formato de cerámica)',
                             border: OutlineInputBorder(),
                           ),
-                          validator: (v) => _validaMayorCero(v, 'm² por caja'),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (v) => InputUtils.requiredPositive(
+                            v,
+                            fieldName: 'm² por caja',
+                            maxValue: 2000,
+                          ),
                         ),
 
                         const SizedBox(height: 12),
@@ -190,10 +206,18 @@ class _CeramicaPageState extends State<CeramicaPage> {
                         const SizedBox(height: 18),
 
                         // Resultados
-                        _ResultadoTile(label: 'Área (m²)', value: _area == 0 ? '-' : _area.toStringAsFixed(2)),
-                        _ResultadoTile(label: 'Cajas sin merma', value: _cajasSinMerma == 0 ? '-' : '$_cajasSinMerma'),
                         _ResultadoTile(
-                          label: _usarMerma10 ? 'Recomendable comprar (con merma 10%)' : 'Cajas con merma',
+                          label: 'Área (m²)',
+                          value: _area == 0 ? '-' : _area.toStringAsFixed(2),
+                        ),
+                        _ResultadoTile(
+                          label: 'Cajas sin merma',
+                          value: _cajasSinMerma == 0 ? '-' : '$_cajasSinMerma',
+                        ),
+                        _ResultadoTile(
+                          label: _usarMerma10
+                              ? 'Recomendable comprar (con merma 10%)'
+                              : 'Cajas con merma',
                           value: _cajasConMerma == 0 ? '-' : '$_cajasConMerma',
                           bold: true,
                         ),
@@ -232,7 +256,7 @@ class _ResultadoTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.08),
+       color: Colors.grey.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

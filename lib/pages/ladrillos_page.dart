@@ -1,6 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../main.dart'; // primaryBlue
+import 'package:flutter/services.dart';
+
+import '../core/app_constants.dart';
+import 'package:ceramica_app/core/input_utils.dart';
 
 class LadrillosPage extends StatefulWidget {
   const LadrillosPage({super.key});
@@ -30,17 +33,6 @@ class _LadrillosPageState extends State<LadrillosPage> {
   int _ladrillosSinMerma = 0;
   int _ladrillosConMerma = 0;
 
-  double _parseNum(String s) {
-    final t = s.trim().replaceAll(',', '.');
-    return double.tryParse(t) ?? 0;
-  }
-
-  String? _validaMayorCero(String? v, String nombre) {
-    final n = _parseNum(v ?? '');
-    if (n <= 0) return '⚠️ $nombre debe ser mayor a 0';
-    return null;
-  }
-
   @override
   void dispose() {
     _largoMuroCtrl.dispose();
@@ -52,21 +44,18 @@ class _LadrillosPageState extends State<LadrillosPage> {
   }
 
   void _calcular() {
-    if (!_formKey.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
 
-    final largoMuro = _parseNum(_largoMuroCtrl.text);
-    final altoMuro = _parseNum(_altoMuroCtrl.text);
+    final ok = _formKey.currentState?.validate() ?? false;
+    if (!ok) return;
 
-    final largoLadrilloCm = _parseNum(_largoLadrilloCtrl.text);
-    final altoLadrilloCm = _parseNum(_altoLadrilloCtrl.text);
+    final largoMuro = InputUtils.toDouble(_largoMuroCtrl.text);
+    final altoMuro = InputUtils.toDouble(_altoMuroCtrl.text);
 
-    final juntaMm = _parseNum(_juntaMmCtrl.text);
-    if (juntaMm < 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('⚠️ La junta (mm) no puede ser negativa')),
-      );
-      return;
-    }
+    final largoLadrilloCm = InputUtils.toDouble(_largoLadrilloCtrl.text);
+    final altoLadrilloCm = InputUtils.toDouble(_altoLadrilloCtrl.text);
+
+    final juntaMm = InputUtils.toDouble(_juntaMmCtrl.text);
 
     // Área del muro
     final areaMuro = largoMuro * altoMuro;
@@ -80,13 +69,6 @@ class _LadrillosPageState extends State<LadrillosPage> {
 
     // Área "ocupada" por cada ladrillo + junta
     final areaPorLadrillo = largoModulo * altoModulo;
-
-    if (areaPorLadrillo <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('⚠️ Revisa medidas del ladrillo/junta')),
-      );
-      return;
-    }
 
     final ladrillosBase = areaMuro / areaPorLadrillo;
     final sinMerma = ladrillosBase.isFinite ? ladrillosBase.ceil() : 0;
@@ -102,6 +84,8 @@ class _LadrillosPageState extends State<LadrillosPage> {
   }
 
   void _limpiar() {
+    _formKey.currentState?.reset();
+
     _largoMuroCtrl.clear();
     _altoMuroCtrl.clear();
     _largoLadrilloCtrl.clear();
@@ -121,7 +105,7 @@ class _LadrillosPageState extends State<LadrillosPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ladrillos pared'),
-        backgroundColor: primaryBlue,
+        backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
       ),
       body: SafeArea(
@@ -153,11 +137,19 @@ class _LadrillosPageState extends State<LadrillosPage> {
                               child: TextFormField(
                                 controller: _largoMuroCtrl,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: [
+                                  DecimalTextInputFormatter(decimalRange: 2),
+                                ],
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
                                 decoration: const InputDecoration(
                                   labelText: 'Largo muro (m)',
                                   border: OutlineInputBorder(),
                                 ),
-                                validator: (v) => _validaMayorCero(v, 'Largo muro'),
+                                validator: (v) => InputUtils.requiredPositive(
+                                  v,
+                                  fieldName: 'Largo muro',
+                                  maxValue: 2000,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -165,11 +157,19 @@ class _LadrillosPageState extends State<LadrillosPage> {
                               child: TextFormField(
                                 controller: _altoMuroCtrl,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: [
+                                  DecimalTextInputFormatter(decimalRange: 2),
+                                ],
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
                                 decoration: const InputDecoration(
                                   labelText: 'Alto muro (m)',
                                   border: OutlineInputBorder(),
                                 ),
-                                validator: (v) => _validaMayorCero(v, 'Alto muro'),
+                                validator: (v) => InputUtils.requiredPositive(
+                                  v,
+                                  fieldName: 'Alto muro',
+                                  maxValue: 2000,
+                                ),
                               ),
                             ),
                           ],
@@ -186,11 +186,19 @@ class _LadrillosPageState extends State<LadrillosPage> {
                               child: TextFormField(
                                 controller: _largoLadrilloCtrl,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: [
+                                  DecimalTextInputFormatter(decimalRange: 2),
+                                ],
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
                                 decoration: const InputDecoration(
                                   labelText: 'Largo ladrillo (cm)',
                                   border: OutlineInputBorder(),
                                 ),
-                                validator: (v) => _validaMayorCero(v, 'Largo ladrillo'),
+                                validator: (v) => InputUtils.requiredPositive(
+                                  v,
+                                  fieldName: 'Largo ladrillo',
+                                  maxValue: 1000,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -198,11 +206,19 @@ class _LadrillosPageState extends State<LadrillosPage> {
                               child: TextFormField(
                                 controller: _altoLadrilloCtrl,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                inputFormatters: [
+                                  DecimalTextInputFormatter(decimalRange: 2),
+                                ],
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
                                 decoration: const InputDecoration(
                                   labelText: 'Alto ladrillo (cm)',
                                   border: OutlineInputBorder(),
                                 ),
-                                validator: (v) => _validaMayorCero(v, 'Alto ladrillo'),
+                                validator: (v) => InputUtils.requiredPositive(
+                                  v,
+                                  fieldName: 'Alto ladrillo',
+                                  maxValue: 1000,
+                                ),
                               ),
                             ),
                           ],
@@ -214,15 +230,22 @@ class _LadrillosPageState extends State<LadrillosPage> {
                         TextFormField(
                           controller: _juntaMmCtrl,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [
+                            DecimalTextInputFormatter(decimalRange: 2),
+                          ],
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           decoration: const InputDecoration(
                             labelText: 'Junta mortero (mm)',
                             helperText: 'Ej: 10 mm (puedes cambiarlo)',
                             border: OutlineInputBorder(),
                           ),
                           validator: (v) {
-                            final n = _parseNum(v ?? '');
-                            if (n < 0) return '⚠️ Junta no puede ser negativa';
-                            if (n == 0) return '⚠️ Junta no puede ser 0 (usa 10 mm aprox)';
+                            final raw = (v ?? '').trim();
+                            if (raw.isEmpty) return 'Junta mortero es obligatorio';
+
+                            final n = InputUtils.toDouble(raw);
+                            if (n <= 0) return '⚠️ Junta debe ser mayor a 0 (ej: 10 mm)';
+                            if (n > 30) return '⚠️ Junta muy grande (ej: 10 mm aprox)';
                             return null;
                           },
                         ),
@@ -271,7 +294,9 @@ class _LadrillosPageState extends State<LadrillosPage> {
                           value: _ladrillosSinMerma == 0 ? '-' : '$_ladrillosSinMerma',
                         ),
                         _ResultadoTile(
-                          label: _usarMerma10 ? 'Recomendable comprar (con merma 10%)' : 'Ladrillos con merma',
+                          label: _usarMerma10
+                              ? 'Recomendable comprar (con merma 10%)'
+                              : 'Ladrillos con merma',
                           value: _ladrillosConMerma == 0 ? '-' : '$_ladrillosConMerma',
                           bold: true,
                         ),
