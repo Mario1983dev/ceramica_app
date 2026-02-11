@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import '../core/app_constants.dart';
 import '../core/input_utils.dart';
 import '../widgets/number_input.dart';
+import '../widgets/result_tile.dart';
 
 class CeramicaPage extends StatefulWidget {
   const CeramicaPage({super.key});
 
   @override
- State<CeramicaPage> createState() => _CeramicaPageState();
+  State<CeramicaPage> createState() => _CeramicaPageState();
 }
 
 class _CeramicaPageState extends State<CeramicaPage> {
@@ -39,6 +40,7 @@ class _CeramicaPageState extends State<CeramicaPage> {
   }
 
   void _calcular() {
+    FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     final largo = InputUtils.toDouble(_largoCtrl.text);
@@ -46,7 +48,7 @@ class _CeramicaPageState extends State<CeramicaPage> {
     final m2Caja = InputUtils.toDouble(_m2CajaCtrl.text);
 
     final area = largo * ancho;
-    final cajasBase = (area / m2Caja);
+    final cajasBase = area / m2Caja;
 
     final cajasSinMerma = cajasBase.isFinite ? cajasBase.ceil() : 0;
 
@@ -115,8 +117,7 @@ class _CeramicaPageState extends State<CeramicaPage> {
                                 controller: _largoCtrl,
                                 label: 'Largo',
                                 suffix: 'm',
-                                validator: (v) =>
-                                    InputUtils.requiredPositive(
+                                validator: (v) => InputUtils.requiredPositive(
                                   v,
                                   fieldName: 'Largo',
                                   maxValue: 2000,
@@ -129,8 +130,7 @@ class _CeramicaPageState extends State<CeramicaPage> {
                                 controller: _anchoCtrl,
                                 label: 'Ancho',
                                 suffix: 'm',
-                                validator: (v) =>
-                                    InputUtils.requiredPositive(
+                                validator: (v) => InputUtils.requiredPositive(
                                   v,
                                   fieldName: 'Ancho',
                                   maxValue: 2000,
@@ -146,8 +146,7 @@ class _CeramicaPageState extends State<CeramicaPage> {
                         NumberInput(
                           controller: _m2CajaCtrl,
                           label: 'm² por caja',
-                          validator: (v) =>
-                              InputUtils.requiredPositive(
+                          validator: (v) => InputUtils.requiredPositive(
                             v,
                             fieldName: 'm² por caja',
                             maxValue: 2000,
@@ -158,18 +157,15 @@ class _CeramicaPageState extends State<CeramicaPage> {
                           padding: EdgeInsets.only(top: 4, bottom: 12),
                           child: Text(
                             'Ej: 1.44 (depende del formato de cerámica)',
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.black54),
+                            style: TextStyle(fontSize: 12, color: Colors.black54),
                           ),
                         ),
 
                         // Merma
                         SwitchListTile(
                           value: _usarMerma10,
-                          onChanged: (v) =>
-                              setState(() => _usarMerma10 = v),
-                          title: const Text(
-                              'Agregar merma 10% (recomendado)'),
+                          onChanged: (v) => setState(() => _usarMerma10 = v),
+                          title: const Text('Agregar merma 10% (recomendado)'),
                         ),
 
                         const SizedBox(height: 14),
@@ -197,26 +193,20 @@ class _CeramicaPageState extends State<CeramicaPage> {
 
                         const SizedBox(height: 18),
 
-                        // Resultados
-                        _ResultadoTile(
+                        // Resultados (✅ usando ResultTile)
+                        ResultTile(
                           label: 'Área (m²)',
-                          value: _area == 0
-                              ? '-'
-                              : _area.toStringAsFixed(2),
+                          value: _area == 0 ? '-' : _area.toStringAsFixed(2),
                         ),
-                        _ResultadoTile(
+                        ResultTile(
                           label: 'Cajas sin merma',
-                          value: _cajasSinMerma == 0
-                              ? '-'
-                              : '$_cajasSinMerma',
+                          value: _cajasSinMerma == 0 ? '-' : '$_cajasSinMerma',
                         ),
-                        _ResultadoTile(
+                        ResultTile(
                           label: _usarMerma10
                               ? 'Recomendable comprar (con merma 10%)'
                               : 'Cajas con merma',
-                          value: _cajasConMerma == 0
-                              ? '-'
-                              : '$_cajasConMerma',
+                          value: _cajasConMerma == 0 ? '-' : '$_cajasConMerma',
                           bold: true,
                         ),
                       ],
@@ -227,41 +217,6 @@ class _CeramicaPageState extends State<CeramicaPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ResultadoTile extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool bold;
-
-  const _ResultadoTile({
-    required this.label,
-    required this.value,
-    this.bold = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final style = TextStyle(
-      fontSize: 16,
-      fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
-    );
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(child: Text(label)),
-          Text(value, style: style),
-        ],
       ),
     );
   }

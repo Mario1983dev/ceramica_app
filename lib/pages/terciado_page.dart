@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../core/app_constants.dart';
 import '../core/input_utils.dart';
 import '../widgets/number_input.dart';
+import '../widgets/result_tile.dart';
 
 class TerciadoPage extends StatefulWidget {
   const TerciadoPage({super.key});
@@ -113,12 +114,16 @@ class _TerciadoPageState extends State<TerciadoPage> {
                       children: [
                         const Text(
                           'Calcula planchas necesarias (con merma opcional)',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                         const SizedBox(height: 16),
 
                         // Área a cubrir
-                        const Text('Área a cubrir', style: TextStyle(fontWeight: FontWeight.w700)),
+                        const Text('Área a cubrir',
+                            style: TextStyle(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 8),
 
                         if (isNarrow) ...[
@@ -178,7 +183,8 @@ class _TerciadoPageState extends State<TerciadoPage> {
                         const SizedBox(height: 14),
 
                         // Plancha
-                        const Text('Medidas de la plancha', style: TextStyle(fontWeight: FontWeight.w700)),
+                        const Text('Medidas de la plancha',
+                            style: TextStyle(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 8),
 
                         if (isNarrow) ...[
@@ -269,24 +275,30 @@ class _TerciadoPageState extends State<TerciadoPage> {
 
                         const SizedBox(height: 18),
 
-                        // Resultados
-                        _ResultadoTile(
+                        // Resultados (✅ usando ResultTile)
+                        ResultTile(
                           label: 'Área total (m²)',
                           value: _area == 0 ? '-' : _area.toStringAsFixed(2),
                         ),
-                        _ResultadoTile(
+                        ResultTile(
                           label: 'Área por plancha (m²)',
-                          value: _areaPlancha == 0 ? '-' : _areaPlancha.toStringAsFixed(2),
+                          value: _areaPlancha == 0
+                              ? '-'
+                              : _areaPlancha.toStringAsFixed(2),
                         ),
-                        _ResultadoTile(
+                        ResultTile(
                           label: 'Planchas sin merma',
-                          value: _planchasSinMerma == 0 ? '-' : '$_planchasSinMerma',
+                          value: _planchasSinMerma == 0
+                              ? '-'
+                              : '$_planchasSinMerma',
                         ),
-                        _ResultadoTile(
+                        ResultTile(
                           label: _usarMerma10
                               ? 'Recomendable comprar (con merma 10%)'
                               : 'Planchas con merma',
-                          value: _planchasConMerma == 0 ? '-' : '$_planchasConMerma',
+                          value: _planchasConMerma == 0
+                              ? '-'
+                              : '$_planchasConMerma',
                           bold: true,
                         ),
                       ],
@@ -297,41 +309,6 @@ class _TerciadoPageState extends State<TerciadoPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ResultadoTile extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool bold;
-
-  const _ResultadoTile({
-    required this.label,
-    required this.value,
-    this.bold = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final style = TextStyle(
-      fontSize: 16,
-      fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
-    );
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.grey.withValues(alpha: 0.08), // ✅ sin withOpacity
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(child: Text(label)),
-          Text(value, style: style),
-        ],
       ),
     );
   }

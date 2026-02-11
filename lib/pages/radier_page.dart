@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/app_constants.dart';
 import '../core/input_utils.dart';
 import '../widgets/number_input.dart';
+import '../widgets/result_tile.dart';
 
 int _ceilToInt(double x) => x.isNaN || x.isInfinite ? 0 : x.ceil();
 
@@ -21,7 +22,7 @@ class _RadierPageState extends State<RadierPage> {
 
   int _espesorCm = 10;
   int _cementoKgPorM3 = 300;
-  double _pesoSacoKg = 25.0;
+  final double _pesoSacoKg = 25.0;
 
   double? _areaM2;
   double? _volumenM3;
@@ -36,7 +37,6 @@ class _RadierPageState extends State<RadierPage> {
     setState(() {
       _espesorCm = 10;
       _cementoKgPorM3 = 300;
-      _pesoSacoKg = 25.0;
       _areaM2 = null;
       _volumenM3 = null;
       _cementoKg = null;
@@ -139,7 +139,8 @@ class _RadierPageState extends State<RadierPage> {
 
   @override
   Widget build(BuildContext context) {
-    final inputBorder = OutlineInputBorder(borderRadius: BorderRadius.circular(14));
+    final inputBorder =
+        OutlineInputBorder(borderRadius: BorderRadius.circular(14));
     final isNarrow = MediaQuery.of(context).size.width < 520;
 
     return Scaffold(
@@ -293,41 +294,36 @@ class _RadierPageState extends State<RadierPage> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                OutlinedButton.icon(
-                  onPressed: _limpiar,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Limpiar'),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _limpiar,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Limpiar'),
+                  ),
                 ),
               ],
             ),
 
             const SizedBox(height: 18),
 
-            if (_volumenM3 != null)
-              Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Resultado',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Text('Área: ${_areaM2!.toStringAsFixed(2)} m²'),
-                      Text('Volumen: ${_volumenM3!.toStringAsFixed(3)} m³'),
-                      Text('Cemento: ${_cementoKg!.toStringAsFixed(1)} kg'),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Sacos necesarios: $_sacos',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            // ✅ Resultados con ResultTile
+            ResultTile(
+              label: 'Área (m²)',
+              value: _areaM2 == null ? '-' : _areaM2!.toStringAsFixed(2),
+            ),
+            ResultTile(
+              label: 'Volumen (m³)',
+              value: _volumenM3 == null ? '-' : _volumenM3!.toStringAsFixed(3),
+            ),
+            ResultTile(
+              label: 'Cemento (kg)',
+              value: _cementoKg == null ? '-' : _cementoKg!.toStringAsFixed(1),
+            ),
+            ResultTile(
+              label: 'Sacos necesarios (25 kg)',
+              value: _sacos == null ? '-' : '$_sacos',
+              bold: true,
+            ),
           ],
         ),
       ),

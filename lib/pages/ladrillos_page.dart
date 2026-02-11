@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../core/app_constants.dart';
 import '../core/input_utils.dart';
 import '../widgets/number_input.dart';
+import '../widgets/result_tile.dart';
 
 class LadrillosPage extends StatefulWidget {
   const LadrillosPage({super.key});
@@ -135,7 +136,8 @@ class _LadrillosPageState extends State<LadrillosPage> {
                         const SizedBox(height: 16),
 
                         // Muro
-                        const Text('Muro', style: TextStyle(fontWeight: FontWeight.w700)),
+                        const Text('Muro',
+                            style: TextStyle(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 8),
 
                         if (isNarrow) ...[
@@ -168,7 +170,8 @@ class _LadrillosPageState extends State<LadrillosPage> {
                                   controller: _largoMuroCtrl,
                                   label: 'Largo muro',
                                   suffix: 'm',
-                                  validator: (v) => InputUtils.requiredPositive(
+                                  validator: (v) =>
+                                      InputUtils.requiredPositive(
                                     v,
                                     fieldName: 'Largo muro',
                                     maxValue: 2000,
@@ -181,7 +184,8 @@ class _LadrillosPageState extends State<LadrillosPage> {
                                   controller: _altoMuroCtrl,
                                   label: 'Alto muro',
                                   suffix: 'm',
-                                  validator: (v) => InputUtils.requiredPositive(
+                                  validator: (v) =>
+                                      InputUtils.requiredPositive(
                                     v,
                                     fieldName: 'Alto muro',
                                     maxValue: 2000,
@@ -195,7 +199,8 @@ class _LadrillosPageState extends State<LadrillosPage> {
                         const SizedBox(height: 14),
 
                         // Ladrillo
-                        const Text('Ladrillo', style: TextStyle(fontWeight: FontWeight.w700)),
+                        const Text('Ladrillo',
+                            style: TextStyle(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 8),
 
                         if (isNarrow) ...[
@@ -228,7 +233,8 @@ class _LadrillosPageState extends State<LadrillosPage> {
                                   controller: _largoLadrilloCtrl,
                                   label: 'Largo ladrillo',
                                   suffix: 'cm',
-                                  validator: (v) => InputUtils.requiredPositive(
+                                  validator: (v) =>
+                                      InputUtils.requiredPositive(
                                     v,
                                     fieldName: 'Largo ladrillo',
                                     maxValue: 1000,
@@ -241,7 +247,8 @@ class _LadrillosPageState extends State<LadrillosPage> {
                                   controller: _altoLadrilloCtrl,
                                   label: 'Alto ladrillo',
                                   suffix: 'cm',
-                                  validator: (v) => InputUtils.requiredPositive(
+                                  validator: (v) =>
+                                      InputUtils.requiredPositive(
                                     v,
                                     fieldName: 'Alto ladrillo',
                                     maxValue: 1000,
@@ -264,8 +271,12 @@ class _LadrillosPageState extends State<LadrillosPage> {
                             if (raw.isEmpty) return 'Junta mortero es obligatorio';
 
                             final n = InputUtils.toDouble(raw);
-                            if (n <= 0) return '⚠️ Junta debe ser mayor a 0 (ej: 10 mm)';
-                            if (n > 30) return '⚠️ Junta muy grande (ej: 10 mm aprox)';
+                            if (n <= 0) {
+                              return '⚠️ Junta debe ser mayor a 0 (ej: 10 mm)';
+                            }
+                            if (n > 30) {
+                              return '⚠️ Junta muy grande (ej: 10 mm aprox)';
+                            }
                             return null;
                           },
                         ),
@@ -309,16 +320,16 @@ class _LadrillosPageState extends State<LadrillosPage> {
 
                         const SizedBox(height: 18),
 
-                        // Resultados
-                        _ResultadoTile(
+                        // Resultados (✅ usando ResultTile)
+                        ResultTile(
                           label: 'Área muro (m²)',
                           value: _areaMuro == 0 ? '-' : _areaMuro.toStringAsFixed(2),
                         ),
-                        _ResultadoTile(
+                        ResultTile(
                           label: 'Ladrillos sin merma',
                           value: _ladrillosSinMerma == 0 ? '-' : '$_ladrillosSinMerma',
                         ),
-                        _ResultadoTile(
+                        ResultTile(
                           label: _usarMerma10
                               ? 'Recomendable comprar (con merma 10%)'
                               : 'Ladrillos con merma',
@@ -333,41 +344,6 @@ class _LadrillosPageState extends State<LadrillosPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ResultadoTile extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool bold;
-
-  const _ResultadoTile({
-    required this.label,
-    required this.value,
-    this.bold = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final style = TextStyle(
-      fontSize: 16,
-      fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
-    );
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.grey.withValues(alpha: 0.08), // ✅ sin withOpacity
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(child: Text(label)),
-          Text(value, style: style),
-        ],
       ),
     );
   }
