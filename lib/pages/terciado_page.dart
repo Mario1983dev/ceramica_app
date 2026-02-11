@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../core/app_constants.dart';
-import 'package:ceramica_app/core/input_utils.dart';
+import '../core/input_utils.dart';
+import '../widgets/number_input.dart';
 
 class TerciadoPage extends StatefulWidget {
   const TerciadoPage({super.key});
@@ -88,11 +88,14 @@ class _TerciadoPageState extends State<TerciadoPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 520;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Terciado ranurado'),
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -117,98 +120,120 @@ class _TerciadoPageState extends State<TerciadoPage> {
                         // Área a cubrir
                         const Text('Área a cubrir', style: TextStyle(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _largoCtrl,
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                inputFormatters: [
-                                  DecimalTextInputFormatter(decimalRange: 2),
-                                ],
-                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                decoration: const InputDecoration(
-                                  labelText: 'Largo (m)',
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: (v) => InputUtils.requiredPositive(
-                                  v,
-                                  fieldName: 'Largo',
-                                  maxValue: 2000,
+
+                        if (isNarrow) ...[
+                          NumberInput(
+                            controller: _largoCtrl,
+                            label: 'Largo',
+                            suffix: 'm',
+                            validator: (v) => InputUtils.requiredPositive(
+                              v,
+                              fieldName: 'Largo',
+                              maxValue: 2000,
+                            ),
+                          ),
+                          NumberInput(
+                            controller: _anchoCtrl,
+                            label: 'Ancho',
+                            suffix: 'm',
+                            validator: (v) => InputUtils.requiredPositive(
+                              v,
+                              fieldName: 'Ancho',
+                              maxValue: 2000,
+                            ),
+                          ),
+                        ] else ...[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: NumberInput(
+                                  controller: _largoCtrl,
+                                  label: 'Largo',
+                                  suffix: 'm',
+                                  validator: (v) => InputUtils.requiredPositive(
+                                    v,
+                                    fieldName: 'Largo',
+                                    maxValue: 2000,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _anchoCtrl,
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                inputFormatters: [
-                                  DecimalTextInputFormatter(decimalRange: 2),
-                                ],
-                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                decoration: const InputDecoration(
-                                  labelText: 'Ancho (m)',
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: (v) => InputUtils.requiredPositive(
-                                  v,
-                                  fieldName: 'Ancho',
-                                  maxValue: 2000,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: NumberInput(
+                                  controller: _anchoCtrl,
+                                  label: 'Ancho',
+                                  suffix: 'm',
+                                  validator: (v) => InputUtils.requiredPositive(
+                                    v,
+                                    fieldName: 'Ancho',
+                                    maxValue: 2000,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
 
                         const SizedBox(height: 14),
 
                         // Plancha
                         const Text('Medidas de la plancha', style: TextStyle(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _largoPlanchaCtrl,
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                inputFormatters: [
-                                  DecimalTextInputFormatter(decimalRange: 2),
-                                ],
-                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                decoration: const InputDecoration(
-                                  labelText: 'Largo plancha (m)',
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: (v) => InputUtils.requiredPositive(
-                                  v,
-                                  fieldName: 'Largo plancha',
-                                  maxValue: 10,
+
+                        if (isNarrow) ...[
+                          NumberInput(
+                            controller: _largoPlanchaCtrl,
+                            label: 'Largo plancha',
+                            suffix: 'm',
+                            validator: (v) => InputUtils.requiredPositive(
+                              v,
+                              fieldName: 'Largo plancha',
+                              maxValue: 10,
+                            ),
+                          ),
+                          NumberInput(
+                            controller: _anchoPlanchaCtrl,
+                            label: 'Ancho plancha',
+                            suffix: 'm',
+                            validator: (v) => InputUtils.requiredPositive(
+                              v,
+                              fieldName: 'Ancho plancha',
+                              maxValue: 10,
+                            ),
+                          ),
+                        ] else ...[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: NumberInput(
+                                  controller: _largoPlanchaCtrl,
+                                  label: 'Largo plancha',
+                                  suffix: 'm',
+                                  validator: (v) => InputUtils.requiredPositive(
+                                    v,
+                                    fieldName: 'Largo plancha',
+                                    maxValue: 10,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _anchoPlanchaCtrl,
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                inputFormatters: [
-                                  DecimalTextInputFormatter(decimalRange: 2),
-                                ],
-                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                decoration: const InputDecoration(
-                                  labelText: 'Ancho plancha (m)',
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: (v) => InputUtils.requiredPositive(
-                                  v,
-                                  fieldName: 'Ancho plancha',
-                                  maxValue: 10,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: NumberInput(
+                                  controller: _anchoPlanchaCtrl,
+                                  label: 'Ancho plancha',
+                                  suffix: 'm',
+                                  validator: (v) => InputUtils.requiredPositive(
+                                    v,
+                                    fieldName: 'Ancho plancha',
+                                    maxValue: 10,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
 
                         const SizedBox(height: 12),
 
@@ -299,7 +324,7 @@ class _ResultadoTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.08),
+        color: Colors.grey.withValues(alpha: 0.08), // ✅ sin withOpacity
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

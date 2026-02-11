@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-import 'package:ceramica_app/core/input_utils.dart';
+import '../core/app_constants.dart';
+import '../core/input_utils.dart';
+import '../widgets/number_input.dart';
 
 int _ceilToInt(double x) => x.isNaN || x.isInfinite ? 0 : x.ceil();
 
@@ -101,12 +102,8 @@ class _RadierPageState extends State<RadierPage> {
   }
 
   String _notaEspesor(int espesor) {
-    if (espesor == 10) {
-      return 'Adecuado para patios y uso doméstico.';
-    }
-    if (espesor == 15) {
-      return 'Recomendado para entrada de autos.';
-    }
+    if (espesor == 10) return 'Adecuado para patios y uso doméstico.';
+    if (espesor == 15) return 'Recomendado para entrada de autos.';
     return 'Mayor firmeza para cargas altas.';
   }
 
@@ -142,11 +139,16 @@ class _RadierPageState extends State<RadierPage> {
 
   @override
   Widget build(BuildContext context) {
-    final inputBorder =
-        OutlineInputBorder(borderRadius: BorderRadius.circular(14));
+    final inputBorder = OutlineInputBorder(borderRadius: BorderRadius.circular(14));
+    final isNarrow = MediaQuery.of(context).size.width < 520;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Radier (Cemento)')),
+      appBar: AppBar(
+        title: const Text('Radier (Cemento)'),
+        backgroundColor: AppColors.primaryBlue,
+        foregroundColor: Colors.white,
+        centerTitle: true,
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -158,51 +160,59 @@ class _RadierPageState extends State<RadierPage> {
             ),
             const SizedBox(height: 14),
 
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _largoCtrl,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    inputFormatters: [
-                      DecimalTextInputFormatter(decimalRange: 2),
-                    ],
-                    decoration: InputDecoration(
-                      labelText: 'Largo (m)',
-                      border: inputBorder,
-                    ),
-                    validator: (v) => InputUtils.requiredPositive(
-                      v,
-                      fieldName: 'Largo',
-                      maxValue: 2000,
+            if (isNarrow) ...[
+              NumberInput(
+                controller: _largoCtrl,
+                label: 'Largo',
+                suffix: 'm',
+                validator: (v) => InputUtils.requiredPositive(
+                  v,
+                  fieldName: 'Largo',
+                  maxValue: 2000,
+                ),
+              ),
+              NumberInput(
+                controller: _anchoCtrl,
+                label: 'Ancho',
+                suffix: 'm',
+                validator: (v) => InputUtils.requiredPositive(
+                  v,
+                  fieldName: 'Ancho',
+                  maxValue: 2000,
+                ),
+              ),
+            ] else ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: NumberInput(
+                      controller: _largoCtrl,
+                      label: 'Largo',
+                      suffix: 'm',
+                      validator: (v) => InputUtils.requiredPositive(
+                        v,
+                        fieldName: 'Largo',
+                        maxValue: 2000,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: _anchoCtrl,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    inputFormatters: [
-                      DecimalTextInputFormatter(decimalRange: 2),
-                    ],
-                    decoration: InputDecoration(
-                      labelText: 'Ancho (m)',
-                      border: inputBorder,
-                    ),
-                    validator: (v) => InputUtils.requiredPositive(
-                      v,
-                      fieldName: 'Ancho',
-                      maxValue: 2000,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: NumberInput(
+                      controller: _anchoCtrl,
+                      label: 'Ancho',
+                      suffix: 'm',
+                      validator: (v) => InputUtils.requiredPositive(
+                        v,
+                        fieldName: 'Ancho',
+                        maxValue: 2000,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
 
             const SizedBox(height: 14),
 
@@ -216,12 +226,9 @@ class _RadierPageState extends State<RadierPage> {
                   value: _espesorCm,
                   isExpanded: true,
                   items: const [
-                    DropdownMenuItem(
-                        value: 10, child: Text('10 cm (patio/casa)')),
-                    DropdownMenuItem(
-                        value: 15, child: Text('15 cm (autos livianos)')),
-                    DropdownMenuItem(
-                        value: 20, child: Text('20 cm (alta carga)')),
+                    DropdownMenuItem(value: 10, child: Text('10 cm (patio/casa)')),
+                    DropdownMenuItem(value: 15, child: Text('15 cm (autos livianos)')),
+                    DropdownMenuItem(value: 20, child: Text('20 cm (alta carga)')),
                   ],
                   onChanged: (v) => setState(() => _espesorCm = v ?? 10),
                 ),
@@ -240,13 +247,9 @@ class _RadierPageState extends State<RadierPage> {
                   value: _cementoKgPorM3,
                   isExpanded: true,
                   items: const [
-                    DropdownMenuItem(
-                        value: 250, child: Text('Liviano – 250 kg/m³')),
-                    DropdownMenuItem(
-                        value: 300,
-                        child: Text('Normal – 300 kg/m³ (recomendado)')),
-                    DropdownMenuItem(
-                        value: 350, child: Text('Alta – 350 kg/m³')),
+                    DropdownMenuItem(value: 250, child: Text('Liviano – 250 kg/m³')),
+                    DropdownMenuItem(value: 300, child: Text('Normal – 300 kg/m³ (recomendado)')),
+                    DropdownMenuItem(value: 350, child: Text('Alta – 350 kg/m³')),
                   ],
                   onChanged: (v) => setState(() => _cementoKgPorM3 = v ?? 300),
                 ),
@@ -256,8 +259,7 @@ class _RadierPageState extends State<RadierPage> {
             const SizedBox(height: 12),
 
             Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Column(
@@ -272,8 +274,7 @@ class _RadierPageState extends State<RadierPage> {
                     const SizedBox(height: 6),
                     Text(
                       _notaEspesor(_espesorCm),
-                      style: const TextStyle(
-                          fontSize: 12, color: Colors.black54),
+                      style: const TextStyle(fontSize: 12, color: Colors.black54),
                     ),
                   ],
                 ),
@@ -304,8 +305,7 @@ class _RadierPageState extends State<RadierPage> {
 
             if (_volumenM3 != null)
               Card(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -313,10 +313,7 @@ class _RadierPageState extends State<RadierPage> {
                     children: [
                       const Text(
                         'Resultado',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Text('Área: ${_areaM2!.toStringAsFixed(2)} m²'),

@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../core/app_constants.dart';
-import 'package:ceramica_app/core/input_utils.dart';
+import '../core/input_utils.dart';
+import '../widgets/number_input.dart';
 
 class LadrillosPage extends StatefulWidget {
   const LadrillosPage({super.key});
@@ -102,11 +102,14 @@ class _LadrillosPageState extends State<LadrillosPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 520;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ladrillos pared'),
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -124,121 +127,138 @@ class _LadrillosPageState extends State<LadrillosPage> {
                       children: [
                         const Text(
                           'Calcula ladrillos necesarios (incluye junta/mortero y merma)',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                         const SizedBox(height: 16),
 
                         // Muro
                         const Text('Muro', style: TextStyle(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _largoMuroCtrl,
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                inputFormatters: [
-                                  DecimalTextInputFormatter(decimalRange: 2),
-                                ],
-                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                decoration: const InputDecoration(
-                                  labelText: 'Largo muro (m)',
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: (v) => InputUtils.requiredPositive(
-                                  v,
-                                  fieldName: 'Largo muro',
-                                  maxValue: 2000,
+
+                        if (isNarrow) ...[
+                          NumberInput(
+                            controller: _largoMuroCtrl,
+                            label: 'Largo muro',
+                            suffix: 'm',
+                            validator: (v) => InputUtils.requiredPositive(
+                              v,
+                              fieldName: 'Largo muro',
+                              maxValue: 2000,
+                            ),
+                          ),
+                          NumberInput(
+                            controller: _altoMuroCtrl,
+                            label: 'Alto muro',
+                            suffix: 'm',
+                            validator: (v) => InputUtils.requiredPositive(
+                              v,
+                              fieldName: 'Alto muro',
+                              maxValue: 2000,
+                            ),
+                          ),
+                        ] else ...[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: NumberInput(
+                                  controller: _largoMuroCtrl,
+                                  label: 'Largo muro',
+                                  suffix: 'm',
+                                  validator: (v) => InputUtils.requiredPositive(
+                                    v,
+                                    fieldName: 'Largo muro',
+                                    maxValue: 2000,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _altoMuroCtrl,
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                inputFormatters: [
-                                  DecimalTextInputFormatter(decimalRange: 2),
-                                ],
-                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                decoration: const InputDecoration(
-                                  labelText: 'Alto muro (m)',
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: (v) => InputUtils.requiredPositive(
-                                  v,
-                                  fieldName: 'Alto muro',
-                                  maxValue: 2000,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: NumberInput(
+                                  controller: _altoMuroCtrl,
+                                  label: 'Alto muro',
+                                  suffix: 'm',
+                                  validator: (v) => InputUtils.requiredPositive(
+                                    v,
+                                    fieldName: 'Alto muro',
+                                    maxValue: 2000,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
 
                         const SizedBox(height: 14),
 
                         // Ladrillo
                         const Text('Ladrillo', style: TextStyle(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _largoLadrilloCtrl,
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                inputFormatters: [
-                                  DecimalTextInputFormatter(decimalRange: 2),
-                                ],
-                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                decoration: const InputDecoration(
-                                  labelText: 'Largo ladrillo (cm)',
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: (v) => InputUtils.requiredPositive(
-                                  v,
-                                  fieldName: 'Largo ladrillo',
-                                  maxValue: 1000,
+
+                        if (isNarrow) ...[
+                          NumberInput(
+                            controller: _largoLadrilloCtrl,
+                            label: 'Largo ladrillo',
+                            suffix: 'cm',
+                            validator: (v) => InputUtils.requiredPositive(
+                              v,
+                              fieldName: 'Largo ladrillo',
+                              maxValue: 1000,
+                            ),
+                          ),
+                          NumberInput(
+                            controller: _altoLadrilloCtrl,
+                            label: 'Alto ladrillo',
+                            suffix: 'cm',
+                            validator: (v) => InputUtils.requiredPositive(
+                              v,
+                              fieldName: 'Alto ladrillo',
+                              maxValue: 1000,
+                            ),
+                          ),
+                        ] else ...[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: NumberInput(
+                                  controller: _largoLadrilloCtrl,
+                                  label: 'Largo ladrillo',
+                                  suffix: 'cm',
+                                  validator: (v) => InputUtils.requiredPositive(
+                                    v,
+                                    fieldName: 'Largo ladrillo',
+                                    maxValue: 1000,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _altoLadrilloCtrl,
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                inputFormatters: [
-                                  DecimalTextInputFormatter(decimalRange: 2),
-                                ],
-                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                decoration: const InputDecoration(
-                                  labelText: 'Alto ladrillo (cm)',
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: (v) => InputUtils.requiredPositive(
-                                  v,
-                                  fieldName: 'Alto ladrillo',
-                                  maxValue: 1000,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: NumberInput(
+                                  controller: _altoLadrilloCtrl,
+                                  label: 'Alto ladrillo',
+                                  suffix: 'cm',
+                                  validator: (v) => InputUtils.requiredPositive(
+                                    v,
+                                    fieldName: 'Alto ladrillo',
+                                    maxValue: 1000,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
 
                         const SizedBox(height: 12),
 
                         // Junta
-                        TextFormField(
+                        NumberInput(
                           controller: _juntaMmCtrl,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          inputFormatters: [
-                            DecimalTextInputFormatter(decimalRange: 2),
-                          ],
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          decoration: const InputDecoration(
-                            labelText: 'Junta mortero (mm)',
-                            helperText: 'Ej: 10 mm (puedes cambiarlo)',
-                            border: OutlineInputBorder(),
-                          ),
+                          label: 'Junta mortero',
+                          suffix: 'mm',
                           validator: (v) {
                             final raw = (v ?? '').trim();
                             if (raw.isEmpty) return 'Junta mortero es obligatorio';
@@ -249,8 +269,13 @@ class _LadrillosPageState extends State<LadrillosPage> {
                             return null;
                           },
                         ),
-
-                        const SizedBox(height: 12),
+                        const Padding(
+                          padding: EdgeInsets.only(top: 4, bottom: 12),
+                          child: Text(
+                            'Ej: 10 mm (puedes cambiarlo)',
+                            style: TextStyle(fontSize: 12, color: Colors.black54),
+                          ),
+                        ),
 
                         // Merma
                         SwitchListTile(
@@ -335,7 +360,7 @@ class _ResultadoTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.08),
+        color: Colors.grey.withValues(alpha: 0.08), // ✅ sin withOpacity
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

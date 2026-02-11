@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-import 'package:ceramica_app/core/input_utils.dart';
+import '../core/app_constants.dart';
+import '../core/input_utils.dart';
+import '../widgets/number_input.dart';
 
 class PinturaPage extends StatefulWidget {
   const PinturaPage({super.key});
@@ -42,8 +43,7 @@ class _PinturaPageState extends State<PinturaPage> {
     final largo = InputUtils.toDouble(largoCtrl.text);
     final alto = InputUtils.toDouble(altoCtrl.text);
 
-    // Ojo: manos y rendimiento pueden llevar decimales, pero normalmente son enteros.
-    // Igual lo soportamos con toDouble por si alguien pone 2.5, etc.
+    // manos y rendimiento pueden llevar decimales (por si alguien pone 2.5, etc.)
     final manos = InputUtils.toDouble(manosCtrl.text);
     final rendimiento = InputUtils.toDouble(rendimientoCtrl.text);
 
@@ -87,8 +87,15 @@ class _PinturaPageState extends State<PinturaPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 520;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Pintura")),
+      appBar: AppBar(
+        title: const Text("Pintura"),
+        backgroundColor: AppColors.primaryBlue,
+        foregroundColor: Colors.white,
+        centerTitle: true,
+      ),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
@@ -108,77 +115,82 @@ class _PinturaPageState extends State<PinturaPage> {
                       ),
                       const SizedBox(height: 16),
 
-                      TextFormField(
-                        controller: largoCtrl,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [
-                          DecimalTextInputFormatter(decimalRange: 2),
-                        ],
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        validator: (v) => InputUtils.requiredPositive(
-                          v,
-                          fieldName: "Largo",
-                          maxValue: 2000,
+                      if (isNarrow) ...[
+                        NumberInput(
+                          controller: largoCtrl,
+                          label: "Largo pared",
+                          suffix: "m",
+                          validator: (v) => InputUtils.requiredPositive(
+                            v,
+                            fieldName: "Largo",
+                            maxValue: 2000,
+                          ),
                         ),
-                        decoration: const InputDecoration(
-                          labelText: "Largo pared (m)",
+                        NumberInput(
+                          controller: altoCtrl,
+                          label: "Alto pared",
+                          suffix: "m",
+                          validator: (v) => InputUtils.requiredPositive(
+                            v,
+                            fieldName: "Alto",
+                            maxValue: 2000,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
+                      ] else ...[
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: NumberInput(
+                                controller: largoCtrl,
+                                label: "Largo pared",
+                                suffix: "m",
+                                validator: (v) => InputUtils.requiredPositive(
+                                  v,
+                                  fieldName: "Largo",
+                                  maxValue: 2000,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: NumberInput(
+                                controller: altoCtrl,
+                                label: "Alto pared",
+                                suffix: "m",
+                                validator: (v) => InputUtils.requiredPositive(
+                                  v,
+                                  fieldName: "Alto",
+                                  maxValue: 2000,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
 
-                      TextFormField(
-                        controller: altoCtrl,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [
-                          DecimalTextInputFormatter(decimalRange: 2),
-                        ],
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        validator: (v) => InputUtils.requiredPositive(
-                          v,
-                          fieldName: "Alto",
-                          maxValue: 2000,
-                        ),
-                        decoration: const InputDecoration(
-                          labelText: "Alto pared (m)",
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-
-                      TextFormField(
+                      NumberInput(
                         controller: manosCtrl,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [
-                          DecimalTextInputFormatter(decimalRange: 2),
-                        ],
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        label: "N° de manos",
                         validator: (v) => InputUtils.requiredPositive(
                           v,
                           fieldName: "N° de manos",
                           maxValue: 100,
                         ),
-                        decoration: const InputDecoration(
-                          labelText: "N° de manos",
-                        ),
                       ),
-                      const SizedBox(height: 10),
 
-                      TextFormField(
+                      NumberInput(
                         controller: rendimientoCtrl,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [
-                          DecimalTextInputFormatter(decimalRange: 2),
-                        ],
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        label: "Rendimiento",
+                        suffix: "m²/galón",
                         validator: (v) => InputUtils.requiredPositive(
                           v,
                           fieldName: "Rendimiento",
                           maxValue: 1000,
                         ),
-                        decoration: const InputDecoration(
-                          labelText: "Rendimiento m² por galón",
-                        ),
                       ),
-                      const SizedBox(height: 16),
+
+                      const SizedBox(height: 10),
 
                       SwitchListTile(
                         title: const Text("Agregar merma 10%"),
