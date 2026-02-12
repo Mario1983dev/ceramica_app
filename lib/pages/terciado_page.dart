@@ -136,7 +136,8 @@ class _TerciadoPageState extends State<TerciadoPage> {
                         if (isNarrow) ...[
                           NumberInput(
                             controller: _largoCtrl,
-                            label: 'Largo',
+                            label: 'Largo a cubrir',
+                                hintText: 'Ej: 4',
                             suffix: 'm',
                             validator: (v) => InputUtils.requiredPositive(
                               v,
@@ -146,7 +147,8 @@ class _TerciadoPageState extends State<TerciadoPage> {
                           ),
                           NumberInput(
                             controller: _anchoCtrl,
-                            label: 'Ancho',
+                            label: 'Ancho a cubrir',
+                                hintText: 'Ej: 3',
                             suffix: 'm',
                             validator: (v) => InputUtils.requiredPositive(
                               v,
@@ -161,7 +163,8 @@ class _TerciadoPageState extends State<TerciadoPage> {
                               Expanded(
                                 child: NumberInput(
                                   controller: _largoCtrl,
-                                  label: 'Largo',
+                                  label: 'Largo a cubrir',
+                                hintText: 'Ej: 4',
                                   suffix: 'm',
                                   validator: (v) => InputUtils.requiredPositive(
                                     v,
@@ -174,7 +177,8 @@ class _TerciadoPageState extends State<TerciadoPage> {
                               Expanded(
                                 child: NumberInput(
                                   controller: _anchoCtrl,
-                                  label: 'Ancho',
+                                  label: 'Ancho a cubrir',
+                                hintText: 'Ej: 3',
                                   suffix: 'm',
                                   validator: (v) => InputUtils.requiredPositive(
                                     v,
@@ -198,6 +202,8 @@ class _TerciadoPageState extends State<TerciadoPage> {
                           NumberInput(
                             controller: _largoPlanchaCtrl,
                             label: 'Largo plancha',
+                          hintText: 'Ej: 2,44',
+                          helperText: 'Medida estándar suele ser 2,44 m.',
                             suffix: 'm',
                             validator: (v) => InputUtils.requiredPositive(
                               v,
@@ -208,6 +214,8 @@ class _TerciadoPageState extends State<TerciadoPage> {
                           NumberInput(
                             controller: _anchoPlanchaCtrl,
                             label: 'Ancho plancha',
+                          hintText: 'Ej: 1,22',
+                          helperText: 'Medida estándar suele ser 1,22 m.',
                             suffix: 'm',
                             validator: (v) => InputUtils.requiredPositive(
                               v,
@@ -223,6 +231,8 @@ class _TerciadoPageState extends State<TerciadoPage> {
                                 child: NumberInput(
                                   controller: _largoPlanchaCtrl,
                                   label: 'Largo plancha',
+                          hintText: 'Ej: 2,44',
+                          helperText: 'Medida estándar suele ser 2,44 m.',
                                   suffix: 'm',
                                   validator: (v) => InputUtils.requiredPositive(
                                     v,
@@ -236,6 +246,8 @@ class _TerciadoPageState extends State<TerciadoPage> {
                                 child: NumberInput(
                                   controller: _anchoPlanchaCtrl,
                                   label: 'Ancho plancha',
+                          hintText: 'Ej: 1,22',
+                          helperText: 'Medida estándar suele ser 1,22 m.',
                                   suffix: 'm',
                                   validator: (v) => InputUtils.requiredPositive(
                                     v,

@@ -84,6 +84,7 @@ class _CeramicaPageState extends State<CeramicaPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 520;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cerámica'),
@@ -115,36 +116,63 @@ class _CeramicaPageState extends State<CeramicaPage> {
                         const SizedBox(height: 16),
 
                         // Largo y Ancho
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: NumberInput(
-                                controller: _largoCtrl,
-                                label: 'Largo',
-                                suffix: 'm',
-                                validator: (v) => InputUtils.requiredPositive(
-                                  v,
-                                  fieldName: 'Largo',
-                                  maxValue: 2000,
+                        if (isNarrow) ...[
+                          NumberInput(
+                            controller: _largoCtrl,
+                            label: 'Largo',
+                            suffix: 'm',
+                            hintText: 'Ej: 4',
+                            validator: (v) => InputUtils.requiredPositive(
+                              v,
+                              fieldName: 'Largo',
+                              maxValue: 2000,
+                            ),
+                          ),
+                          NumberInput(
+                            controller: _anchoCtrl,
+                            label: 'Ancho',
+                            suffix: 'm',
+                            hintText: 'Ej: 3',
+                            validator: (v) => InputUtils.requiredPositive(
+                              v,
+                              fieldName: 'Ancho',
+                              maxValue: 2000,
+                            ),
+                          ),
+                        ] else ...[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: NumberInput(
+                                  controller: _largoCtrl,
+                                  label: 'Largo',
+                                  suffix: 'm',
+                                  hintText: 'Ej: 4',
+                                  validator: (v) => InputUtils.requiredPositive(
+                                    v,
+                                    fieldName: 'Largo',
+                                    maxValue: 2000,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: NumberInput(
-                                controller: _anchoCtrl,
-                                label: 'Ancho',
-                                suffix: 'm',
-                                validator: (v) => InputUtils.requiredPositive(
-                                  v,
-                                  fieldName: 'Ancho',
-                                  maxValue: 2000,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: NumberInput(
+                                  controller: _anchoCtrl,
+                                  label: 'Ancho',
+                                  suffix: 'm',
+                                  hintText: 'Ej: 3',
+                                  validator: (v) => InputUtils.requiredPositive(
+                                    v,
+                                    fieldName: 'Ancho',
+                                    maxValue: 2000,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
 
                         const SizedBox(height: 12),
 
@@ -152,6 +180,7 @@ class _CeramicaPageState extends State<CeramicaPage> {
                         NumberInput(
                           controller: _m2CajaCtrl,
                           label: 'm² por caja',
+                          hintText: 'Ej: 1,44',
                           validator: (v) => InputUtils.requiredPositive(
                             v,
                             fieldName: 'm² por caja',

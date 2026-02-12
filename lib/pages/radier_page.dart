@@ -172,6 +172,7 @@ class _RadierPageState extends State<RadierPage> {
               NumberInput(
                 controller: _largoCtrl,
                 label: 'Largo',
+                      hintText: 'Ej: 5',
                 suffix: 'm',
                 validator: (v) => InputUtils.requiredPositive(
                   v,
@@ -182,6 +183,7 @@ class _RadierPageState extends State<RadierPage> {
               NumberInput(
                 controller: _anchoCtrl,
                 label: 'Ancho',
+                      hintText: 'Ej: 3',
                 suffix: 'm',
                 validator: (v) => InputUtils.requiredPositive(
                   v,
@@ -197,6 +199,7 @@ class _RadierPageState extends State<RadierPage> {
                     child: NumberInput(
                       controller: _largoCtrl,
                       label: 'Largo',
+                      hintText: 'Ej: 5',
                       suffix: 'm',
                       validator: (v) => InputUtils.requiredPositive(
                         v,
@@ -210,6 +213,7 @@ class _RadierPageState extends State<RadierPage> {
                     child: NumberInput(
                       controller: _anchoCtrl,
                       label: 'Ancho',
+                      hintText: 'Ej: 3',
                       suffix: 'm',
                       validator: (v) => InputUtils.requiredPositive(
                         v,

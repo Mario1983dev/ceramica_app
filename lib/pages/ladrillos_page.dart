@@ -20,19 +20,70 @@ class _LadrillosPageState extends State<LadrillosPage> {
   final _largoMuroCtrl = TextEditingController();
   final _altoMuroCtrl = TextEditingController();
 
-  // Ladrillo (cm)
-  final _largoLadrilloCtrl = TextEditingController();
-  final _altoLadrilloCtrl = TextEditingController();
+  // Ladrillo (cm) - valores por defecto editables
+  // (Puedes cambiarlos según el ladrillo real)
+  final _largoLadrilloCtrl = TextEditingController(text: '20');
+  final _altoLadrilloCtrl = TextEditingController(text: '7');
 
-  // Junta mortero (mm)
+  // Junta (mm)
   final _juntaMmCtrl = TextEditingController(text: '10');
 
   bool _usarMerma10 = true;
 
-  // Resultados
-  double _areaMuro = 0;
   int _ladrillosSinMerma = 0;
   int _ladrillosConMerma = 0;
+
+  static const _sectionTitleStyle = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w800,
+  );
+
+  void _calcular() {
+    if (!_formKey.currentState!.validate()) return;
+
+    final largoMuro = InputUtils.toDouble(_largoMuroCtrl.text); // m
+    final altoMuro = InputUtils.toDouble(_altoMuroCtrl.text); // m
+
+    final largoLadrilloCm = InputUtils.toDouble(_largoLadrilloCtrl.text); // cm
+    final altoLadrilloCm = InputUtils.toDouble(_altoLadrilloCtrl.text); // cm
+    final juntaMm = InputUtils.toDouble(_juntaMmCtrl.text); // mm
+
+    final areaMuro = largoMuro * altoMuro;
+
+    // Pasamos a metros y sumamos junta
+    // mm -> cm: /10, luego cm -> m: /100  => (cm + mm/10)/100
+    final largoModuloM = (largoLadrilloCm + juntaMm / 10) / 100;
+    final altoModuloM = (altoLadrilloCm + juntaMm / 10) / 100;
+
+    final areaModulo = largoModuloM * altoModuloM;
+    if (areaModulo <= 0) return;
+
+    final sinMerma = (areaMuro / areaModulo).ceil();
+    final conMerma = _usarMerma10 ? (sinMerma * 1.10).ceil() : sinMerma;
+
+    setState(() {
+      _ladrillosSinMerma = max(0, sinMerma);
+      _ladrillosConMerma = max(0, conMerma);
+    });
+  }
+
+  void _limpiar() {
+    _formKey.currentState?.reset();
+
+    _largoMuroCtrl.clear();
+    _altoMuroCtrl.clear();
+
+    // mantenemos valores por defecto para ayudar al usuario
+    _largoLadrilloCtrl.text = '20';
+    _altoLadrilloCtrl.text = '7';
+    _juntaMmCtrl.text = '10';
+
+    setState(() {
+      _ladrillosSinMerma = 0;
+      _ladrillosConMerma = 0;
+      _usarMerma10 = true;
+    });
+  }
 
   @override
   void dispose() {
@@ -44,309 +95,133 @@ class _LadrillosPageState extends State<LadrillosPage> {
     super.dispose();
   }
 
-  void _calcular() {
-    FocusScope.of(context).unfocus();
-
-    final ok = _formKey.currentState?.validate() ?? false;
-    if (!ok) {
-      setState(() {
-        _areaMuro = 0;
-        _ladrillosSinMerma = 0;
-        _ladrillosConMerma = 0;
-      });
-      return;
-    }
-    final largoMuro = InputUtils.toDouble(_largoMuroCtrl.text);
-    final altoMuro = InputUtils.toDouble(_altoMuroCtrl.text);
-
-    final largoLadrilloCm = InputUtils.toDouble(_largoLadrilloCtrl.text);
-    final altoLadrilloCm = InputUtils.toDouble(_altoLadrilloCtrl.text);
-
-    final juntaMm = InputUtils.toDouble(_juntaMmCtrl.text);
-
-    // Área del muro
-    final areaMuro = largoMuro * altoMuro;
-
-    // Convertimos ladrillo a metros y sumamos la junta (mortero)
-    // cm -> m : /100
-    // mm -> m : /1000
-    final juntaM = juntaMm / 1000.0;
-    final largoModulo = (largoLadrilloCm / 100.0) + juntaM;
-    final altoModulo = (altoLadrilloCm / 100.0) + juntaM;
-
-    // Área "ocupada" por cada ladrillo + junta
-    final areaPorLadrillo = largoModulo * altoModulo;
-
-    final ladrillosBase = areaMuro / areaPorLadrillo;
-    final sinMerma = ladrillosBase.isFinite ? ladrillosBase.ceil() : 0;
-
-    final merma = _usarMerma10 ? 0.10 : 0.0;
-    final conMerma = ((areaMuro * (1 + merma)) / areaPorLadrillo).ceil();
-
-    setState(() {
-      _areaMuro = areaMuro;
-      _ladrillosSinMerma = max(0, sinMerma);
-      _ladrillosConMerma = max(0, conMerma);
-    });
-  }
-
-  void _limpiar() {
-    _formKey.currentState?.reset();
-
-    _largoMuroCtrl.clear();
-    _altoMuroCtrl.clear();
-    _largoLadrilloCtrl.clear();
-    _altoLadrilloCtrl.clear();
-    _juntaMmCtrl.text = '10';
-
-    setState(() {
-      _usarMerma10 = true;
-      _areaMuro = 0;
-      _ladrillosSinMerma = 0;
-      _ladrillosConMerma = 0;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final isNarrow = MediaQuery.of(context).size.width < 520;
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ladrillos pared'),
-        backgroundColor: AppColors.primaryBlue,
-        foregroundColor: Colors.white,
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Cálculo de Ladrillos')),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 650),
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text(
-                          'Calcula ladrillos necesarios (incluye junta/mortero y merma)',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppConstants.padding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text('Dimensiones del muro', style: _sectionTitleStyle),
+                const SizedBox(height: 8),
 
-                        // Muro
-                        const Text('Muro',
-                            style: TextStyle(fontWeight: FontWeight.w700)),
-                        const SizedBox(height: 8),
-
-                        if (isNarrow) ...[
-                          NumberInput(
-                            controller: _largoMuroCtrl,
-                            label: 'Largo muro',
-                            suffix: 'm',
-                            validator: (v) => InputUtils.requiredPositive(
-                              v,
-                              fieldName: 'Largo muro',
-                              maxValue: 2000,
-                            ),
-                          ),
-                          NumberInput(
-                            controller: _altoMuroCtrl,
-                            label: 'Alto muro',
-                            suffix: 'm',
-                            validator: (v) => InputUtils.requiredPositive(
-                              v,
-                              fieldName: 'Alto muro',
-                              maxValue: 2000,
-                            ),
-                          ),
-                        ] else ...[
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: NumberInput(
-                                  controller: _largoMuroCtrl,
-                                  label: 'Largo muro',
-                                  suffix: 'm',
-                                  validator: (v) =>
-                                      InputUtils.requiredPositive(
-                                    v,
-                                    fieldName: 'Largo muro',
-                                    maxValue: 2000,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: NumberInput(
-                                  controller: _altoMuroCtrl,
-                                  label: 'Alto muro',
-                                  suffix: 'm',
-                                  validator: (v) =>
-                                      InputUtils.requiredPositive(
-                                    v,
-                                    fieldName: 'Alto muro',
-                                    maxValue: 2000,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-
-                        const SizedBox(height: 14),
-
-                        // Ladrillo
-                        const Text('Ladrillo',
-                            style: TextStyle(fontWeight: FontWeight.w700)),
-                        const SizedBox(height: 8),
-
-                        if (isNarrow) ...[
-                          NumberInput(
-                            controller: _largoLadrilloCtrl,
-                            label: 'Largo ladrillo',
-                            suffix: 'cm',
-                            validator: (v) => InputUtils.requiredPositive(
-                              v,
-                              fieldName: 'Largo ladrillo',
-                              maxValue: 1000,
-                            ),
-                          ),
-                          NumberInput(
-                            controller: _altoLadrilloCtrl,
-                            label: 'Alto ladrillo',
-                            suffix: 'cm',
-                            validator: (v) => InputUtils.requiredPositive(
-                              v,
-                              fieldName: 'Alto ladrillo',
-                              maxValue: 1000,
-                            ),
-                          ),
-                        ] else ...[
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: NumberInput(
-                                  controller: _largoLadrilloCtrl,
-                                  label: 'Largo ladrillo',
-                                  suffix: 'cm',
-                                  validator: (v) =>
-                                      InputUtils.requiredPositive(
-                                    v,
-                                    fieldName: 'Largo ladrillo',
-                                    maxValue: 1000,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: NumberInput(
-                                  controller: _altoLadrilloCtrl,
-                                  label: 'Alto ladrillo',
-                                  suffix: 'cm',
-                                  validator: (v) =>
-                                      InputUtils.requiredPositive(
-                                    v,
-                                    fieldName: 'Alto ladrillo',
-                                    maxValue: 1000,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-
-                        const SizedBox(height: 12),
-
-                        // Junta
-                        NumberInput(
-                          controller: _juntaMmCtrl,
-                          label: 'Junta mortero',
-                          suffix: 'mm',
-                          validator: (v) {
-                            final raw = (v ?? '').trim();
-                            if (raw.isEmpty) return 'Junta mortero es obligatorio';
-
-                            final n = InputUtils.toDouble(raw);
-                            if (n <= 0) {
-                              return '⚠️ Junta debe ser mayor a 0 (ej: 10 mm)';
-                            }
-                            if (n > 30) {
-                              return '⚠️ Junta muy grande (ej: 10 mm aprox)';
-                            }
-                            return null;
-                          },
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(top: 4, bottom: 12),
-                          child: Text(
-                            'Ej: 10 mm (puedes cambiarlo)',
-                            style: TextStyle(fontSize: 12, color: Colors.black54),
-                          ),
-                        ),
-
-                        // Merma
-                        SwitchListTile(
-                          value: _usarMerma10,
-                          onChanged: (v) => setState(() => _usarMerma10 = v),
-                          title: const Text('Agregar merma 10% (recomendado)'),
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        // Botones
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: _calcular,
-                                icon: const Icon(Icons.calculate),
-                                label: const Text('Calcular'),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: _limpiar,
-                                icon: const Icon(Icons.refresh),
-                                label: const Text('Limpiar'),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 18),
-
-                        // Resultados (✅ usando ResultTile)
-                        ResultTile(
-                          label: 'Área muro (m²)',
-                          value: _areaMuro == 0 ? '-' : _areaMuro.toStringAsFixed(2),
-                        ),
-                        ResultTile(
-                          label: 'Ladrillos sin merma',
-                          value: _ladrillosSinMerma == 0 ? '-' : '$_ladrillosSinMerma',
-                        ),
-                        ResultTile(
-                          label: _usarMerma10
-                              ? 'Recomendable comprar (con merma 10%)'
-                              : 'Ladrillos con merma',
-                          value: _ladrillosConMerma == 0 ? '-' : '$_ladrillosConMerma',
-                          bold: true,
-                        ),
-                      ],
-                    ),
+                NumberInput(
+                  controller: _largoMuroCtrl,
+                  label: 'Largo del muro',
+                  suffix: 'm',
+                  hintText: 'Ej: 4.2',
+                  validator: (v) => InputUtils.requiredPositive(
+                    v,
+                    fieldName: 'Largo del muro',
+                    maxValue: AppConstants.maxInputValue,
                   ),
                 ),
-              ),
+
+                NumberInput(
+                  controller: _altoMuroCtrl,
+                  label: 'Alto del muro',
+                  suffix: 'm',
+                  hintText: 'Ej: 2.4',
+                  validator: (v) => InputUtils.requiredPositive(
+                    v,
+                    fieldName: 'Alto del muro',
+                    maxValue: AppConstants.maxInputValue,
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+                const Text('Medidas del ladrillo', style: _sectionTitleStyle),
+                const SizedBox(height: 8),
+
+                NumberInput(
+                  controller: _largoLadrilloCtrl,
+                  label: 'Largo del ladrillo',
+                  suffix: 'cm',
+                  integerOnly: true,
+                  hintText: 'Ej: 20',
+                  helperText: 'Mide tu ladrillo real si es distinto.',
+                  validator: (v) => InputUtils.requiredPositive(
+                    v,
+                    fieldName: 'Largo del ladrillo',
+                    maxValue: 60,
+                  ),
+                ),
+
+                NumberInput(
+                  controller: _altoLadrilloCtrl,
+                  label: 'Alto del ladrillo',
+                  suffix: 'cm',
+                  integerOnly: true,
+                  hintText: 'Ej: 7',
+                  helperText: 'Altura del ladrillo (sin mortero).',
+                  validator: (v) => InputUtils.requiredPositive(
+                    v,
+                    fieldName: 'Alto del ladrillo',
+                    maxValue: 40,
+                  ),
+                ),
+
+                NumberInput(
+                  controller: _juntaMmCtrl,
+                  label: 'Junta de mortero',
+                  suffix: 'mm',
+                  integerOnly: true,
+                  hintText: 'Ej: 10',
+                  helperText:
+                      'Separación típica entre ladrillos. Si no sabes, deja 10 mm.',
+                  validator: (v) => InputUtils.requiredPositive(
+                    v,
+                    fieldName: 'Junta de mortero',
+                    maxValue: 30,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                SwitchListTile(
+                  value: _usarMerma10,
+                  onChanged: (v) => setState(() => _usarMerma10 = v),
+                  title: const Text('Agregar merma 10% (recomendado)'),
+                ),
+
+                const SizedBox(height: 12),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _calcular,
+                        child: const Text('Calcular'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _limpiar,
+                        child: const Text('Limpiar'),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 18),
+
+                ResultTile(
+                  label: 'Ladrillos necesarios (sin merma)',
+                  value: _ladrillosSinMerma == 0 ? '-' : '$_ladrillosSinMerma',
+                ),
+
+                ResultTile(
+                  label: _usarMerma10 ? 'Recomendable comprar' : 'Total',
+                  value: _ladrillosConMerma == 0 ? '-' : '$_ladrillosConMerma',
+                  bold: true,
+                ),
+              ],
             ),
           ),
         ),
