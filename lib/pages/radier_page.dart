@@ -48,8 +48,15 @@ class _RadierPageState extends State<RadierPage> {
     FocusScope.of(context).unfocus();
 
     final ok = _formKey.currentState?.validate() ?? false;
-    if (!ok) return;
-
+    if (!ok) {
+      setState(() {
+        _areaM2 = null;
+        _volumenM3 = null;
+        _cementoKg = null;
+        _sacos = null;
+      });
+      return;
+    }
     final largo = InputUtils.toDouble(_largoCtrl.text);
     final ancho = InputUtils.toDouble(_anchoCtrl.text);
     final espesorM = _espesorCm / 100.0;

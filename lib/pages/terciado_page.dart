@@ -45,8 +45,15 @@ class _TerciadoPageState extends State<TerciadoPage> {
     FocusScope.of(context).unfocus();
 
     final ok = _formKey.currentState?.validate() ?? false;
-    if (!ok) return;
-
+    if (!ok) {
+      setState(() {
+        _area = 0;
+        _areaPlancha = 0;
+        _planchasSinMerma = 0;
+        _planchasConMerma = 0;
+      });
+      return;
+    }
     final largo = InputUtils.toDouble(_largoCtrl.text);
     final ancho = InputUtils.toDouble(_anchoCtrl.text);
 

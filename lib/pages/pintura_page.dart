@@ -36,6 +36,11 @@ class _PinturaPageState extends State<PinturaPage> {
 
     final ok = _formKey.currentState?.validate() ?? false;
     if (!ok) {
+      setState(() {
+        area = 0;
+        areaTotal = 0;
+        galones = 0;
+      });
       _snack('⚠️ Revisa los campos antes de calcular.');
       return;
     }

@@ -48,8 +48,14 @@ class _LadrillosPageState extends State<LadrillosPage> {
     FocusScope.of(context).unfocus();
 
     final ok = _formKey.currentState?.validate() ?? false;
-    if (!ok) return;
-
+    if (!ok) {
+      setState(() {
+        _areaMuro = 0;
+        _ladrillosSinMerma = 0;
+        _ladrillosConMerma = 0;
+      });
+      return;
+    }
     final largoMuro = InputUtils.toDouble(_largoMuroCtrl.text);
     final altoMuro = InputUtils.toDouble(_altoMuroCtrl.text);
 

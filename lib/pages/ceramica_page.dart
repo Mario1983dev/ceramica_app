@@ -41,8 +41,14 @@ class _CeramicaPageState extends State<CeramicaPage> {
 
   void _calcular() {
     FocusScope.of(context).unfocus();
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      setState(() {
+        _area = 0;
+        _cajasSinMerma = 0;
+        _cajasConMerma = 0;
+      });
+      return;
+    }
     final largo = InputUtils.toDouble(_largoCtrl.text);
     final ancho = InputUtils.toDouble(_anchoCtrl.text);
     final m2Caja = InputUtils.toDouble(_m2CajaCtrl.text);
