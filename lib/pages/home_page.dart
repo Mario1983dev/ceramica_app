@@ -8,6 +8,8 @@ import 'pintura_page.dart';
 import 'terciado_page.dart';
 import 'ladrillos_page.dart';
 import 'radier_page.dart';
+import 'tabique_page.dart';
+import 'techo_calculator.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -31,7 +33,6 @@ class HomePage extends StatelessWidget {
                   child: Column(
                     children: [
                       const SizedBox(height: 10),
-
                       Image.asset(
                         logoPath,
                         height: 180,
@@ -49,9 +50,7 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 12),
-
                       Wrap(
                         spacing: 14,
                         runSpacing: 14,
@@ -126,6 +125,34 @@ class HomePage extends StatelessWidget {
                               );
                             },
                           ),
+                          HomeCard(
+                            isMobile: isMobile,
+                            title: 'Tabiques',
+                            subtitle: 'Estructura Metalcon/Madera (esqueleto)',
+                            icon: Icons.view_sidebar_rounded,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const TabiquePage(),
+                                ),
+                              );
+                            },
+                          ),
+                          HomeCard(
+                            isMobile: isMobile,
+                            title: 'Techo',
+                            subtitle: 'Estructura (Vigas + Omega / Cerchas)',
+                            icon: Icons.roofing_rounded,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const TechoCalculator(),
+                                ),
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ],
@@ -173,7 +200,8 @@ class HomeCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 26,
-                  backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.12), // ✅ sin withOpacity
+                  backgroundColor:
+                      AppColors.primaryBlue.withValues(alpha: 0.12),
                   child: Icon(icon, color: AppColors.primaryBlue),
                 ),
                 const SizedBox(width: 14),

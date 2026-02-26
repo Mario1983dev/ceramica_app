@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'core/app_constants.dart';
 import 'pages/home_page.dart';
+import 'pages/tabique_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +26,15 @@ class MyApp extends StatelessWidget {
           centerTitle: true,
         ),
       ),
-      home: const HomePage(),
+
+      // ✅ Rutas (para navegar fácil)
+      routes: {
+        '/': (_) => const HomePage(),
+        '/tabiques': (_) => const TabiquePage(),
+      },
+
+      // ✅ Pantalla inicial
+      initialRoute: '/',
     );
   }
 }

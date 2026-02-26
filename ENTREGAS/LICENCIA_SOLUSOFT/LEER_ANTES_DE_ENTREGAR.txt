@@ -1,0 +1,18 @@
+TIPO: LICENCIA DE USO (RESUMEN)
+
+Producto: SoluSoft – Calculadoras de Construcción
+Titular: SoluSoft SPA
+
+SE ENTREGA
+- Acceso a la app web
+- Soporte básico
+- Actualizaciones menores
+
+NO SE ENTREGA
+- Código fuente
+- Reventa sin autorización
+- Copia del sistema
+
+Versión: v1.0.0
+
+
