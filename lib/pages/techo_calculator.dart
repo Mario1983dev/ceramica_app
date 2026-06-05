@@ -101,12 +101,16 @@ class _TechoCalculatorState extends State<TechoCalculator> {
 
     final corrida = ancho; // 1 agua
     final pendienteReal = _pendienteReal(corrida, pendientePct);
+    final areaTecho = largo * pendienteReal;
+    final mlVigas = vigas * pendienteReal;
 
     final lineasOmega = _cantidad(pendienteReal, sepOmega);
     final mlOmega = lineasOmega * largo;
 
     resultados.add({'label': 'Sistema', 'value': 'Vigas C + Omega'});
+    resultados.add({'label': 'Área de techo estimada', 'value': '${areaTecho.toStringAsFixed(2)} m²'});
     resultados.add({'label': 'Vigas C (u)', 'value': '$vigas'});
+    resultados.add({'label': 'Vigas C (ml)', 'value': mlVigas.toStringAsFixed(2)});
     resultados.add({
       'label': 'Largo pendiente (m)',
       'value': pendienteReal.toStringAsFixed(2),
@@ -128,8 +132,10 @@ class _TechoCalculatorState extends State<TechoCalculator> {
     final lineasCost = _cantidad(pendienteReal, sepCost);
     final factor = (tipoTecho == TipoTecho.dosAguas) ? 2 : 1;
     final mlCost = lineasCost * largo * factor;
+    final areaTecho = largo * pendienteReal * factor;
 
     resultados.add({'label': 'Sistema', 'value': 'Cerchas + Costaneras'});
+    resultados.add({'label': 'Área de techo estimada', 'value': '${areaTecho.toStringAsFixed(2)} m²'});
     resultados.add({'label': 'Cerchas (u)', 'value': '$cerchas'});
     resultados.add({
       'label': 'Largo pendiente (m)',

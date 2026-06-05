@@ -1,0 +1,29 @@
+Correcciones realizadas en calculadora de materiales
+
+1) Ladrillos
+- Se corrigió el cálculo con merma: ahora se aplica 10% sobre el área antes de dividir por el módulo del ladrillo.
+- Se agregó campo "Ancho/profundidad del ladrillo" para poder estimar mortero.
+- Se agregó resultado de mortero estimado para juntas en m³ y litros.
+- Fórmula usada:
+  area_muro = largo_muro * alto_muro
+  modulo_ladrillo = (largo_ladrillo + junta) * (alto_ladrillo + junta)
+  ladrillos = ceil(area_muro / modulo_ladrillo)
+  ladrillos_con_merma = ceil(area_muro * 1.10 / modulo_ladrillo)
+  mortero = ladrillos_con_merma * (volumen_modulo - volumen_ladrillo)
+
+2) Pintura
+- Se separó visualmente el área total sin merma y el área total con merma.
+- El cálculo de galones usa el área total con merma cuando la opción está activada.
+
+3) Techo
+- Se agregó "Área de techo estimada".
+- En Vigas C + Omega se agregó el total de Vigas C en metros lineales.
+- Se eliminó una línea duplicada de border en el formulario.
+
+4) Cálculos revisados sin cambios importantes
+- Cerámica: correcto para cajas = ceil(area / m² por caja), con merma opcional.
+- Terciado: correcto para planchas = ceil(area / área plancha), con merma opcional.
+- Radier: correcto para cemento estimado por dosificación kg/m³ y saco de 25 kg.
+- Tabiques: correcto como cálculo base de estructura lineal, sin revestimientos ni puertas/ventanas.
+
+Nota: los cálculos son estimativos para presupuesto. En obra real pueden variar por tipo de material, formato, cortes, vanos, pérdidas y recomendaciones del proveedor.

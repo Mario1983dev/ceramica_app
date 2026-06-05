@@ -24,6 +24,7 @@ class _PinturaPageState extends State<PinturaPage> {
 
   double? area;
   double? areaTotal;
+  double? areaConMerma;
   int? galones;
 
   void _calcular() {
@@ -34,6 +35,7 @@ class _PinturaPageState extends State<PinturaPage> {
       setState(() {
         area = null;
         areaTotal = null;
+        areaConMerma = null;
         galones = null;
       });
       return;
@@ -55,6 +57,7 @@ class _PinturaPageState extends State<PinturaPage> {
     setState(() {
       area = a;
       areaTotal = aTotal;
+      areaConMerma = aConMerma;
       galones = g;
     });
   }
@@ -71,6 +74,7 @@ class _PinturaPageState extends State<PinturaPage> {
       usarMerma = true;
       area = null;
       areaTotal = null;
+      areaConMerma = null;
       galones = null;
     });
   }
@@ -230,8 +234,12 @@ class _PinturaPageState extends State<PinturaPage> {
               value: area == null ? '-' : area!.toStringAsFixed(2),
             ),
             ResultTile(
-              label: 'Área total (m²)',
+              label: 'Área total sin merma (m²)',
               value: areaTotal == null ? '-' : areaTotal!.toStringAsFixed(2),
+            ),
+            ResultTile(
+              label: usarMerma ? 'Área total con merma (m²)' : 'Área total para comprar (m²)',
+              value: areaConMerma == null ? '-' : areaConMerma!.toStringAsFixed(2),
             ),
             ResultTile(
               label: 'Galones necesarios',

@@ -24,6 +24,7 @@ class _LadrillosPageState extends State<LadrillosPage> {
   // (Puedes cambiarlos según el ladrillo real)
   final _largoLadrilloCtrl = TextEditingController(text: '20');
   final _altoLadrilloCtrl = TextEditingController(text: '7');
+  final _anchoLadrilloCtrl = TextEditingController(text: '10');
 
   // Junta (mm)
   final _juntaMmCtrl = TextEditingController(text: '10');
@@ -32,6 +33,7 @@ class _LadrillosPageState extends State<LadrillosPage> {
 
   int _ladrillosSinMerma = 0;
   int _ladrillosConMerma = 0;
+  double _morteroM3 = 0;
 
   static const _sectionTitleStyle = TextStyle(
     fontSize: 16,
@@ -46,6 +48,7 @@ class _LadrillosPageState extends State<LadrillosPage> {
 
     final largoLadrilloCm = InputUtils.toDouble(_largoLadrilloCtrl.text); // cm
     final altoLadrilloCm = InputUtils.toDouble(_altoLadrilloCtrl.text); // cm
+    final anchoLadrilloCm = InputUtils.toDouble(_anchoLadrilloCtrl.text); // cm
     final juntaMm = InputUtils.toDouble(_juntaMmCtrl.text); // mm
 
     final areaMuro = largoMuro * altoMuro;
@@ -56,14 +59,25 @@ class _LadrillosPageState extends State<LadrillosPage> {
     final altoModuloM = (altoLadrilloCm + juntaMm / 10) / 100;
 
     final areaModulo = largoModuloM * altoModuloM;
-    if (areaModulo <= 0) return;
+    if (areaModulo <= 0 || anchoLadrilloCm <= 0) return;
 
+    final factorMerma = _usarMerma10 ? 1.10 : 1.0;
     final sinMerma = (areaMuro / areaModulo).ceil();
-    final conMerma = _usarMerma10 ? (sinMerma * 1.10).ceil() : sinMerma;
+    final conMerma = ((areaMuro * factorMerma) / areaModulo).ceil();
+
+    // Mortero estimado para juntas: volumen del módulo menos volumen del ladrillo.
+    // Se calcula con la profundidad/ancho del ladrillo ingresado por el usuario.
+    final anchoLadrilloM = anchoLadrilloCm / 100.0;
+    final largoLadrilloM = largoLadrilloCm / 100.0;
+    final altoLadrilloM = altoLadrilloCm / 100.0;
+    final volumenModulo = largoModuloM * altoModuloM * anchoLadrilloM;
+    final volumenLadrillo = largoLadrilloM * altoLadrilloM * anchoLadrilloM;
+    final morteroM3 = max(0.0, conMerma * (volumenModulo - volumenLadrillo));
 
     setState(() {
       _ladrillosSinMerma = max(0, sinMerma);
       _ladrillosConMerma = max(0, conMerma);
+      _morteroM3 = morteroM3;
     });
   }
 
@@ -76,11 +90,13 @@ class _LadrillosPageState extends State<LadrillosPage> {
     // mantenemos valores por defecto para ayudar al usuario
     _largoLadrilloCtrl.text = '20';
     _altoLadrilloCtrl.text = '7';
+    _anchoLadrilloCtrl.text = '10';
     _juntaMmCtrl.text = '10';
 
     setState(() {
       _ladrillosSinMerma = 0;
       _ladrillosConMerma = 0;
+      _morteroM3 = 0;
       _usarMerma10 = true;
     });
   }
@@ -91,6 +107,7 @@ class _LadrillosPageState extends State<LadrillosPage> {
     _altoMuroCtrl.dispose();
     _largoLadrilloCtrl.dispose();
     _altoLadrilloCtrl.dispose();
+    _anchoLadrilloCtrl.dispose();
     _juntaMmCtrl.dispose();
     super.dispose();
   }
@@ -167,6 +184,20 @@ class _LadrillosPageState extends State<LadrillosPage> {
                 ),
 
                 NumberInput(
+                  controller: _anchoLadrilloCtrl,
+                  label: 'Ancho/profundidad del ladrillo',
+                  suffix: 'cm',
+                  integerOnly: true,
+                  hintText: 'Ej: 10',
+                  helperText: 'Necesario para estimar el mortero de juntas.',
+                  validator: (v) => InputUtils.requiredPositive(
+                    v,
+                    fieldName: 'Ancho/profundidad del ladrillo',
+                    maxValue: 40,
+                  ),
+                ),
+
+                NumberInput(
                   controller: _juntaMmCtrl,
                   label: 'Junta de mortero',
                   suffix: 'mm',
@@ -220,6 +251,13 @@ class _LadrillosPageState extends State<LadrillosPage> {
                   label: _usarMerma10 ? 'Recomendable comprar' : 'Total',
                   value: _ladrillosConMerma == 0 ? '-' : '$_ladrillosConMerma',
                   bold: true,
+                ),
+
+                ResultTile(
+                  label: 'Mortero estimado para juntas',
+                  value: _morteroM3 == 0
+                      ? '-'
+                      : '${_morteroM3.toStringAsFixed(3)} m³ (${(_morteroM3 * 1000).toStringAsFixed(0)} L)',
                 ),
               ],
             ),
